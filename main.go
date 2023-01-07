@@ -181,9 +181,20 @@ func listUpRemoteBranch() ([]string, error) {
 	return branches, nil
 }
 
+var flagUserAndRepo = flag.String("g", "", "GitHub \"USER/REPO\"")
+
 var rxURL = regexp.MustCompile(`Push +URL: \w+@github.com:(\w+)/(\w+).git`)
 
 func getNameAndRepo() (string, string, error) {
+	if *flagUserAndRepo != "" {
+		var found bool
+		name, repo, found := strings.Cut(*flagUserAndRepo, "/")
+		if !found {
+			return "", "", fmt.Errorf("-g \"%s\": format must be \"USER/REPO\"",
+				*flagUserAndRepo)
+		}
+		return name, repo, nil
+	}
 	branch, err := listUpRemoteBranch()
 	if err != nil {
 		return "", "", err
