@@ -233,6 +233,8 @@ func writeWithCRLF(source []byte, w io.Writer) error {
 	}
 }
 
+var flagDownloadLatestAssets = flag.Bool("D", false, "Download and read the latest assets from GitHub")
+
 func mains(args []string) error {
 	name, repo, err := getNameAndRepo()
 	if err != nil {
@@ -252,33 +254,81 @@ func mains(args []string) error {
 	var url, tag string
 
 	var binfiles = map[string]struct{}{}
-	for _, arg1 := range args {
-		files, err := filepath.Glob(arg1)
-		if err != nil {
-			files = []string{arg1}
-		}
-		for _, fname := range files {
-			bits := getBits(fname)
-			if bits == "" {
-				return fmt.Errorf("%s: can not find `386` nor `amd64`", fname)
-			}
-			url, tag = seekAssets(releases, fname)
-			if url == "" {
-				return fmt.Errorf("%s not found in remote repository", fname)
-			}
-			hash, err := getHash(fname)
+	if len(args) > 0 {
+		for _, arg1 := range args {
+			files, err := filepath.Glob(arg1)
 			if err != nil {
+				files = []string{arg1}
+			}
+			for _, fname := range files {
+				bits := getBits(fname)
+				if bits == "" {
+					return fmt.Errorf("%s: can not find `386` nor `amd64`", fname)
+				}
+				url, tag = seekAssets(releases, fname)
+				if url == "" {
+					return fmt.Errorf("%s not found in remote repository", fname)
+				}
+				hash, err := getHash(fname)
+				if err != nil {
+					return err
+				}
+				arch[bits] = &Archtecture{
+					Url:  url,
+					Hash: hash,
+				}
+				if strings.EqualFold(filepath.Ext(fname), ".zip") {
+					if exefiles, err := listUpExeInZip(fname); err == nil {
+						for _, fn := range exefiles {
+							binfiles[fn] = struct{}{}
+						}
+					}
+				}
+			}
+		}
+	} else if *flagDownloadLatestAssets {
+		if len(releases) < 1 {
+			return fmt.Errorf("%s/%s: no releases", name, repo)
+		}
+		for _, asset1 := range releases[0].Assets {
+			if !strings.EqualFold(filepath.Ext(asset1.Name), ".zip") {
+				continue
+			}
+			bits := getBits(asset1.Name)
+			if bits == "" {
+				continue
+			}
+			resp, err := http.Get(asset1.BrowserDownloadUrl)
+			if err != nil {
+				return fmt.Errorf("%s: %w", asset1.BrowserDownloadUrl, err)
+			}
+			tmpFd, err := os.CreateTemp("", "mkmani.*.zip")
+			if err != nil {
+				resp.Body.Close()
 				return err
 			}
+			tag = releases[0].TagName
+
+			tmpZipName := tmpFd.Name()
+			defer os.Remove(tmpZipName)
+
+			io.Copy(tmpFd, resp.Body)
+			resp.Body.Close()
+
+			tmpFd.Seek(0, 0)
+			h := sha256.New()
+			io.Copy(h, tmpFd)
+			hash := fmt.Sprintf("%x", h.Sum(nil))
+			tmpFd.Close()
+
 			arch[bits] = &Archtecture{
-				Url:  url,
+				Url:  asset1.BrowserDownloadUrl,
 				Hash: hash,
 			}
-			if strings.EqualFold(filepath.Ext(fname), ".zip") {
-				if exefiles, err := listUpExeInZip(fname); err == nil {
-					for _, fn := range exefiles {
-						binfiles[fn] = struct{}{}
-					}
+
+			if exefiles, err := listUpExeInZip(tmpZipName); err == nil {
+				for _, fn := range exefiles {
+					binfiles[fn] = struct{}{}
 				}
 			}
 		}
