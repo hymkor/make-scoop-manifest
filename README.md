@@ -6,6 +6,14 @@ make-scoop-manifest.exe
 - If the zip files' names contains `linux` or `macos`, they are ignored.
 - Do not check the target is updated or not.
 
+Install
+-------
+
+```
+scoop bucket add hymkor https://github.com/hymkor/scoop-bucket
+scoop install make-scoop-manifest
+```
+
 Usage-1
 -------
 
