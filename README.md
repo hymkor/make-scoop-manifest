@@ -1,10 +1,14 @@
 make-scoop-manifest.exe
 =======================
 
+This is is the tool to make the manifest file of the [scoop-installer](https://scoop.sh) for your applications.
+
 - Read releases information with GitHub-API
 - The zip files' names must contain the word: `32bit`,`64bit`,`386`,`amd64` or `arm64`
 - If the zip files' names contains `linux` or `macos`, they are ignored.
 - Do not check the target is updated or not.
+
+The output sample is [here](https://github.com/hymkor/make-scoop-manifest/blob/master/make-scoop-manifest.json).
 
 Install
 -------
