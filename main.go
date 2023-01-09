@@ -277,11 +277,12 @@ func mains(args []string) error {
 				if bits == "" {
 					return fmt.Errorf("%s: can not find `386` nor `amd64`", fname)
 				}
-				url, tag = seekAssets(releases, fname)
+				name := filepath.Base(fname)
+				url, tag = seekAssets(releases, name)
 				if url == "" {
-					return fmt.Errorf("%s not found in remote repository", fname)
+					return fmt.Errorf("%s not found in remote repository", name)
 				}
-				fmt.Fprintln(os.Stderr, "Read:", fname)
+				fmt.Fprintln(os.Stderr, "Read local file:", fname)
 				hash, err := getHash(fname)
 				if err != nil {
 					return err
