@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 )
 
@@ -422,8 +423,14 @@ func mains(args []string) error {
 	return writeWithCRLF(jsonBin, os.Stdout)
 }
 
+var version string
+
 func main() {
 	flag.Parse()
+
+	fmt.Fprintf(os.Stderr, "%s %s for %s/%s by %s\n",
+		os.Args[0], version, runtime.GOOS, runtime.GOARCH, runtime.Version())
+
 	if err := mains(flag.Args()); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
