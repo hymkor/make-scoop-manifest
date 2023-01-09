@@ -96,10 +96,13 @@ type Manifest struct {
 }
 
 func getBits(s string) string {
-	if strings.Contains(s, "386") {
+	s = strings.ToLower(s)
+	if strings.Contains(s, "386") || strings.Contains(s, "32bit") {
 		return "32bit"
-	} else if strings.Contains(s, "amd64") {
+	} else if strings.Contains(s, "amd64") || strings.Contains(s, "64bit") {
 		return "64bit"
+	} else if strings.Contains(s, "arm64") {
+		return "arm64"
 	}
 	return ""
 }
@@ -275,7 +278,7 @@ func mains(args []string) error {
 			for _, fname := range files {
 				bits := getBits(fname)
 				if bits == "" {
-					return fmt.Errorf("%s: can not find `386` nor `amd64`", fname)
+					return fmt.Errorf("%s: can not find `386` nor `amd64` nor `arm64`", fname)
 				}
 				name := filepath.Base(fname)
 				url, tag = seekAssets(releases, name)
