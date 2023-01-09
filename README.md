@@ -14,6 +14,12 @@ scoop bucket add hymkor https://github.com/hymkor/scoop-bucket
 scoop install make-scoop-manifest
 ```
 
+OR
+
+```
+scoop install https://raw.githubusercontent.com/hymkor/make-scoop-manifest/master/make-scoop-manifest.json
+```
+
 Usage-1
 -------
 
