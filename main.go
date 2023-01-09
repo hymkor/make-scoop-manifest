@@ -185,7 +185,7 @@ func listUpRemoteBranch() ([]string, error) {
 
 var flagUserAndRepo = flag.String("g", "", "GitHub \"USER/REPO\"")
 
-var rxURL = regexp.MustCompile(`Push +URL: \w+@github.com:(\w+)/(\w+).git`)
+var rxURL = regexp.MustCompile(`Push +URL: \w+@github.com:([\w-]+)/([\w-]+).git`)
 
 func getNameAndRepo() (string, string, error) {
 	if *flagUserAndRepo != "" {
