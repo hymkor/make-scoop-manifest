@@ -92,7 +92,7 @@ type Manifest struct {
 	License      string                  `json:"license,omitempty"`
 	Archtectures map[string]*Archtecture `json:"architecture"`
 	Bin          []string                `json:"bin"`
-	CheckVer     map[string]string       `json:"checkver"`
+	CheckVer     string                  `json:"checkver"`
 	AutoUpdate   AutoUpdate              `json:"autoupdate"`
 }
 
@@ -389,15 +389,8 @@ func mains(args []string) error {
 		manifest.Homepage = fmt.Sprintf(
 			"https://github.com/%s/%s", name, repo)
 	}
-	if manifest.CheckVer == nil {
-		manifest.CheckVer = make(map[string]string)
-	}
-	if _, ok := manifest.CheckVer["github"]; !ok {
-		manifest.CheckVer["github"] = fmt.Sprintf(
-			"https://github.com/%s/%s", name, repo)
-	}
-	if _, ok := manifest.CheckVer["regex"]; !ok {
-		manifest.CheckVer["regex"] = "tag/([\\d\\._]+)"
+	if manifest.CheckVer == "" {
+		manifest.CheckVer = "github"
 	}
 	for name, val := range arch {
 		manifest.Archtectures[name] = val
