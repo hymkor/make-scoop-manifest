@@ -19,8 +19,9 @@ import (
 )
 
 func queryReleases(user, repo string) ([]byte, error) {
-	resp, err := http.Get(
-		fmt.Sprintf("https://api.github.com/repos/%s/%s/releases", user, repo))
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases", user, repo)
+	fmt.Fprintln(os.Stderr, "Get:", url)
+	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +105,9 @@ func getBits(s string) string {
 }
 
 func queryDescription(user, repo string) ([]byte, error) {
-	resp, err := http.Get(
-		fmt.Sprintf("https://api.github.com/repos/%s/%s", user, repo))
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s", user, repo)
+	fmt.Fprintln(os.Stderr, "Get:", url)
+	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -235,6 +237,16 @@ func writeWithCRLF(source []byte, w io.Writer) error {
 
 var flagDownloadLatestAssets = flag.Bool("D", false, "Download and read the latest assets from GitHub")
 
+func isWindowsZipName(name string) bool {
+	if strings.Contains(name, "linux") {
+		return false
+	}
+	if strings.Contains(name, "macos") {
+		return false
+	}
+	return true
+}
+
 func mains(args []string) error {
 	name, repo, err := getNameAndRepo()
 	if err != nil {
@@ -269,6 +281,7 @@ func mains(args []string) error {
 				if url == "" {
 					return fmt.Errorf("%s not found in remote repository", fname)
 				}
+				fmt.Fprintln(os.Stderr, "Read:", fname)
 				hash, err := getHash(fname)
 				if err != nil {
 					return err
@@ -291,18 +304,24 @@ func mains(args []string) error {
 			return fmt.Errorf("%s/%s: no releases", name, repo)
 		}
 		for _, asset1 := range releases[0].Assets {
-			if !strings.EqualFold(filepath.Ext(asset1.Name), ".zip") {
+			name := asset1.Name
+			if !strings.EqualFold(filepath.Ext(name), ".zip") {
 				continue
 			}
-			bits := getBits(asset1.Name)
+			if !isWindowsZipName(name) {
+				continue
+			}
+			bits := getBits(name)
 			if bits == "" {
 				continue
 			}
-			resp, err := http.Get(asset1.BrowserDownloadUrl)
+			url = asset1.BrowserDownloadUrl
+			fmt.Fprintln(os.Stderr, "Download:", url)
+			resp, err := http.Get(url)
 			if err != nil {
-				return fmt.Errorf("%s: %w", asset1.BrowserDownloadUrl, err)
+				return fmt.Errorf("%s: %w", url, err)
 			}
-			tmpFd, err := os.CreateTemp("", "mkmani.*.zip")
+			tmpFd, err := os.CreateTemp("", "make-scoop-manifest-*.zip")
 			if err != nil {
 				resp.Body.Close()
 				return err
