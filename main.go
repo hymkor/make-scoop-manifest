@@ -402,10 +402,18 @@ func mains(args []string) error {
 	}
 	if desc, err := getDescription(name, repo); err == nil {
 		if manifest.Description == "" {
-			manifest.Description = desc.Description
+			description := desc.Description
+			if description == "" {
+				fmt.Fprintln(os.Stderr, `Warning: "description" field on GitHub is empty`)
+			}
+			manifest.Description = description
 		}
 		if manifest.License == "" {
-			manifest.License = desc.License["name"]
+			license := desc.License["name"]
+			if license == "" {
+				fmt.Fprintln(os.Stderr, `Warning: "license" field on GitHub is empty`)
+			}
+			manifest.License = license
 		}
 	}
 
