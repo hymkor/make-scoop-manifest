@@ -19,6 +19,17 @@ import (
 	"strings"
 )
 
+var (
+	flagDownloadLatestAssets = flag.Bool("D", false, "Download and read the latest assets from GitHub")
+	flagInlineTemplate       = flag.String("inline", "", "Set template inline")
+
+	flagStdinTemplate = flag.Bool("stdin", false, "Read template from stdin")
+
+	flagUserAndRepo = flag.String("g", "", "GitHub \"USER/REPO\"")
+
+	flagAnyCPU = flag.Bool("anycpu", false, "do not use architecture")
+)
+
 func queryReleases(user, repo string) ([]byte, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases", user, repo)
 	fmt.Fprintln(os.Stderr, "Get:", url)
@@ -82,18 +93,21 @@ type Archtecture struct {
 }
 
 type AutoUpdate struct {
-	Archtectures map[string]*Archtecture `json:"architecture"`
+	Archtectures map[string]*Archtecture `json:"architecture,omitempty"`
+	UrlForAnyCPU string                  `json:"url,omitempty"`
 }
 
 type Manifest struct {
-	Version      string                  `json:"version"`
-	Description  string                  `json:"description,omitempty"`
-	Homepage     string                  `json:"homepage,omitempty"`
-	License      string                  `json:"license,omitempty"`
-	Archtectures map[string]*Archtecture `json:"architecture"`
-	Bin          []string                `json:"bin"`
-	CheckVer     string                  `json:"checkver"`
-	AutoUpdate   AutoUpdate              `json:"autoupdate"`
+	Version       string                  `json:"version"`
+	Description   string                  `json:"description,omitempty"`
+	Homepage      string                  `json:"homepage,omitempty"`
+	License       string                  `json:"license,omitempty"`
+	Archtectures  map[string]*Archtecture `json:"architecture,omitempty"`
+	UrlForAnyCPU  string                  `json:"url,omitempty"`
+	HashForAnyCPU string                  `json:"hash,omitempty"`
+	Bin           []string                `json:"bin"`
+	CheckVer      string                  `json:"checkver"`
+	AutoUpdate    AutoUpdate              `json:"autoupdate"`
 }
 
 func getBits(s string) string {
@@ -136,10 +150,6 @@ func getDescription(user, repo string) (*Description, error) {
 	}
 	return desc, nil
 }
-
-var flagInlineTemplate = flag.String("inline", "", "Set template inline")
-
-var flagStdinTemplate = flag.Bool("stdin", false, "Read template from stdin")
 
 func listUpExeInZip(fname string) ([]string, error) {
 	zr, err := zip.OpenReader(fname)
@@ -186,8 +196,6 @@ func listUpRemoteBranch() ([]string, error) {
 	})
 	return branches, nil
 }
-
-var flagUserAndRepo = flag.String("g", "", "GitHub \"USER/REPO\"")
 
 var rxURL = regexp.MustCompile(`Push +URL: \w+@github.com:([\w-]+)/([\w-]+).git`)
 
@@ -239,8 +247,6 @@ func writeWithCRLF(source []byte, w io.Writer) error {
 	}
 }
 
-var flagDownloadLatestAssets = flag.Bool("D", false, "Download and read the latest assets from GitHub")
-
 func isWindowsZipName(name string) bool {
 	if strings.Contains(name, "linux") {
 		return false
@@ -277,9 +283,12 @@ func mains(args []string) error {
 				files = []string{arg1}
 			}
 			for _, fname := range files {
-				bits := getBits(fname)
-				if bits == "" {
-					return fmt.Errorf("%s: can not find `386` nor `amd64` nor `arm64`", fname)
+				var bits string
+				if !*flagAnyCPU {
+					bits = getBits(fname)
+					if bits == "" {
+						return fmt.Errorf("%s: can not find `386` nor `amd64` nor `arm64`", fname)
+					}
 				}
 				name := filepath.Base(fname)
 				url, tag = seekAssets(releases, name)
@@ -316,9 +325,12 @@ func mains(args []string) error {
 			if !isWindowsZipName(name) {
 				continue
 			}
-			bits := getBits(name)
-			if bits == "" {
-				continue
+			var bits string
+			if !*flagAnyCPU {
+				bits = getBits(name)
+				if bits == "" {
+					continue
+				}
 			}
 			url = asset1.BrowserDownloadUrl
 			fmt.Fprintln(os.Stderr, "Download:", url)
@@ -379,7 +391,7 @@ func mains(args []string) error {
 			manifest.Bin = append(manifest.Bin, exe)
 		}
 	}
-	if manifest.Archtectures == nil {
+	if manifest.Archtectures == nil && !*flagAnyCPU {
 		manifest.Archtectures = make(map[string]*Archtecture)
 	}
 	if manifest.AutoUpdate.Archtectures == nil {
@@ -392,13 +404,21 @@ func mains(args []string) error {
 	if manifest.CheckVer == "" {
 		manifest.CheckVer = "github"
 	}
-	for name, val := range arch {
-		manifest.Archtectures[name] = val
+	if *flagAnyCPU {
 		manifest.Version = strings.TrimPrefix(tag, "v")
+		manifest.UrlForAnyCPU = arch[""].Url
+		manifest.HashForAnyCPU = arch[""].Hash
+		manifest.AutoUpdate.UrlForAnyCPU =
+			strings.ReplaceAll(arch[""].Url, manifest.Version, "$version")
+	} else {
+		for name, val := range arch {
+			manifest.Archtectures[name] = val
+			manifest.Version = strings.TrimPrefix(tag, "v")
 
-		autoupdate := strings.ReplaceAll(val.Url, manifest.Version, "$version")
-		bits := getBits(val.Url)
-		manifest.AutoUpdate.Archtectures[bits] = &Archtecture{Url: autoupdate}
+			autoupdate := strings.ReplaceAll(val.Url, manifest.Version, "$version")
+			bits := getBits(val.Url)
+			manifest.AutoUpdate.Archtectures[bits] = &Archtecture{Url: autoupdate}
+		}
 	}
 	if desc, err := getDescription(name, repo); err == nil {
 		if manifest.Description == "" {
