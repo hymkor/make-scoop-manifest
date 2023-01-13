@@ -247,12 +247,13 @@ func writeWithCRLF(source []byte, w io.Writer) error {
 	}
 }
 
+var ignoreWords = flag.String("ignore", "linux,macos,freebsd,netbsd,darwin,plan9", "ignore the zipfile whose name contains these words")
+
 func isWindowsZipName(name string) bool {
-	if strings.Contains(name, "linux") {
-		return false
-	}
-	if strings.Contains(name, "macos") {
-		return false
+	for _, word := range strings.Split(*ignoreWords, ",") {
+		if strings.Contains(name, word) {
+			return false
+		}
 	}
 	return true
 }
