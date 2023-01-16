@@ -26,6 +26,8 @@ var (
 	flagUserAndRepo          = flag.String("g", "", "GitHub \"USER/REPO\"")
 	flagAnyCPU               = flag.Bool("anycpu", false, "do not use architecture")
 	flagExtractDir           = flag.Bool("p", false, "Set the parent directory of *.exe into \"extract_dir\" and the basename into \"bin\"")
+	flag32                   = flag.String("32", "386,32bit,win32", "When these strings are found, set architecture 32bit")
+	flag64                   = flag.String("64", "amd64,64bit,win64", "When these strings are found, set architecture 64bit")
 )
 
 func queryReleases(user, repo string) ([]byte, error) {
@@ -111,11 +113,17 @@ type Manifest struct {
 
 func getBits(s string) string {
 	s = strings.ToLower(s)
-	if strings.Contains(s, "386") || strings.Contains(s, "32bit") {
-		return "32bit"
-	} else if strings.Contains(s, "amd64") || strings.Contains(s, "64bit") {
-		return "64bit"
-	} else if strings.Contains(s, "arm64") {
+	for _, keyword := range strings.Split(*flag32, ",") {
+		if strings.Contains(s, keyword) {
+			return "32bit"
+		}
+	}
+	for _, keyword := range strings.Split(*flag64, ",") {
+		if strings.Contains(s, keyword) {
+			return "64bit"
+		}
+	}
+	if strings.Contains(s, "arm64") {
 		return "arm64"
 	}
 	return ""
