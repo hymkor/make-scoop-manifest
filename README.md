@@ -82,3 +82,30 @@ Download: https://github.com/hymkor/zar/releases/download/v0.2.2/zar-v0.2.2-wind
 Download: https://github.com/hymkor/zar/releases/download/v0.2.2/zar-v0.2.2-windows-amd64.zip
 Get: https://api.github.com/repos/hymkor/zar
 ```
+
+Sample commandline options:
+---------------------------
+
+### benhoyt/goawk
+
+```
+make-scoop-manifest -g benhoyt/goawk -D > bucket/goawk.json
+```
+
+### zat-kaoru-hayama/yShowver
+
+```
+make-scoop-manifest.exe -anycpu -g zat-kaoru-hayama/yShowVer -D > bucket/yShowVer.json 
+```
+
+### mattn/twty
+
+```
+make-scoop-manifest --inline "{ \"license\":\"MIT License\" }" -g mattn/twty -D -p > bucket/twty.json
+```
+
+### koron/vim-kaoriya
+
+```
+make-scoop-manifest -p --inline "{ \"license\":\"Vim License\" }" -g koron/vim-kaoriya vim82-kaoriya-*.zip > bucket/vim-kaoriya.json
+```
