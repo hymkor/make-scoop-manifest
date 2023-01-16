@@ -22,12 +22,10 @@ import (
 var (
 	flagDownloadLatestAssets = flag.Bool("D", false, "Download and read the latest assets from GitHub")
 	flagInlineTemplate       = flag.String("inline", "", "Set template inline")
-
-	flagStdinTemplate = flag.Bool("stdin", false, "Read template from stdin")
-
-	flagUserAndRepo = flag.String("g", "", "GitHub \"USER/REPO\"")
-
-	flagAnyCPU = flag.Bool("anycpu", false, "do not use architecture")
+	flagStdinTemplate        = flag.Bool("stdin", false, "Read template from stdin")
+	flagUserAndRepo          = flag.String("g", "", "GitHub \"USER/REPO\"")
+	flagAnyCPU               = flag.Bool("anycpu", false, "do not use architecture")
+	flagExtractDir           = flag.Bool("p", false, "Set the parent directory of *.exe into \"extract_dir\" and the basename into \"bin\"")
 )
 
 func queryReleases(user, repo string) ([]byte, error) {
@@ -88,8 +86,9 @@ func getHash(fname string) (string, error) {
 }
 
 type Archtecture struct {
-	Url  string `json:"url"`
-	Hash string `json:"hash,omitempty"`
+	Url        string `json:"url"`
+	Hash       string `json:"hash,omitempty"`
+	ExtractDir string `json:"extract_dir,omitempty"`
 }
 
 type AutoUpdate struct {
@@ -291,6 +290,9 @@ func mains(args []string) error {
 						return fmt.Errorf("%s: can not find `386` nor `amd64` nor `arm64`", fname)
 					}
 				}
+				if !strings.EqualFold(filepath.Ext(fname), ".zip") {
+					return fmt.Errorf("%s: not zipfile", fname)
+				}
 				name := filepath.Base(fname)
 				url, tag = seekAssets(releases, name)
 				if url == "" {
@@ -301,16 +303,23 @@ func mains(args []string) error {
 				if err != nil {
 					return err
 				}
-				arch[bits] = &Archtecture{
-					Url:  url,
-					Hash: hash,
-				}
-				if strings.EqualFold(filepath.Ext(fname), ".zip") {
-					if exefiles, err := listUpExeInZip(fname); err == nil {
-						for _, fn := range exefiles {
-							binfiles[fn] = struct{}{}
+				var extractDir string
+				if exefiles, err := listUpExeInZip(fname); err == nil {
+					for _, fn := range exefiles {
+						if *flagExtractDir {
+							notDir := filepath.Dir(fn)
+							if notDir != "." {
+								extractDir = notDir
+								fn = filepath.Base(fn)
+							}
 						}
+						binfiles[fn] = struct{}{}
 					}
+				}
+				arch[bits] = &Archtecture{
+					Url:        url,
+					Hash:       hash,
+					ExtractDir: extractDir,
 				}
 			}
 		}
@@ -358,15 +367,23 @@ func mains(args []string) error {
 			hash := fmt.Sprintf("%x", h.Sum(nil))
 			tmpFd.Close()
 
-			arch[bits] = &Archtecture{
-				Url:  asset1.BrowserDownloadUrl,
-				Hash: hash,
-			}
-
+			var extractDir string
 			if exefiles, err := listUpExeInZip(tmpZipName); err == nil {
 				for _, fn := range exefiles {
+					if *flagExtractDir {
+						notDir := filepath.Dir(fn)
+						if notDir != "." {
+							extractDir = notDir
+							fn = filepath.Base(fn)
+						}
+					}
 					binfiles[fn] = struct{}{}
 				}
+			}
+			arch[bits] = &Archtecture{
+				Url:        asset1.BrowserDownloadUrl,
+				Hash:       hash,
+				ExtractDir: extractDir,
 			}
 		}
 	}
