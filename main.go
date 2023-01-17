@@ -28,6 +28,7 @@ var (
 	flagExtractDir           = flag.Bool("p", false, "Set the parent directory of *.exe into \"extract_dir\" and the basename into \"bin\"")
 	flag32                   = flag.String("32", "386,32bit,win32", "When these strings are found, set architecture 32bit")
 	flag64                   = flag.String("64", "amd64,64bit,win64", "When these strings are found, set architecture 64bit")
+	flagLicense              = flag.String("license", "", "Set license")
 )
 
 func queryReleases(user, repo string) ([]byte, error) {
@@ -411,6 +412,9 @@ func mains(args []string) error {
 		if err = json.Unmarshal(input, &manifest); err != nil {
 			return err
 		}
+	}
+	if *flagLicense != "" {
+		manifest.License = *flagLicense
 	}
 	if binfiles != nil {
 		for exe := range binfiles {
