@@ -278,6 +278,10 @@ func isWindowsZipName(name string) bool {
 }
 
 func mains(args []string) error {
+	if len(args) <= 0 && !*flagDownloadLatestAssets && *flagDownloadTo == "" {
+		flag.PrintDefaults()
+		return nil
+	}
 	name, repo, err := getNameAndRepo()
 	if err != nil {
 		return err
