@@ -160,20 +160,28 @@ func getDescription(user, repo string) (*Description, error) {
 	return desc, nil
 }
 
-func listUpExeInZip(fname string) ([]string, error) {
+func listUpExeInZip(fname string, exeFiles map[string]struct{}) (string, error) {
 	zr, err := zip.OpenReader(fname)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer zr.Close()
 
-	names := make([]string, 0)
+	var extractDir string
 	for _, f := range zr.File {
 		if strings.EqualFold(filepath.Ext(f.Name), ".exe") {
-			names = append(names, f.Name)
+			nm := f.Name
+			if *flagExtractDir {
+				notDir := filepath.Dir(nm)
+				if notDir != "." {
+					extractDir = notDir
+					nm = filepath.Base(nm)
+				}
+			}
+			exeFiles[nm] = struct{}{}
 		}
 	}
-	return names, nil
+	return extractDir, nil
 }
 
 func quote(args []string, f func(string) error) error {
@@ -313,18 +321,9 @@ func mains(args []string) error {
 				if err != nil {
 					return err
 				}
-				var extractDir string
-				if exefiles, err := listUpExeInZip(fname); err == nil {
-					for _, fn := range exefiles {
-						if *flagExtractDir {
-							notDir := filepath.Dir(fn)
-							if notDir != "." {
-								extractDir = notDir
-								fn = filepath.Base(fn)
-							}
-						}
-						binfiles[fn] = struct{}{}
-					}
+				extractDir, err := listUpExeInZip(fname, binfiles)
+				if err != nil {
+					return err
 				}
 				arch[bits] = &Archtecture{
 					Url:        url,
@@ -377,18 +376,9 @@ func mains(args []string) error {
 			hash := fmt.Sprintf("%x", h.Sum(nil))
 			tmpFd.Close()
 
-			var extractDir string
-			if exefiles, err := listUpExeInZip(tmpZipName); err == nil {
-				for _, fn := range exefiles {
-					if *flagExtractDir {
-						notDir := filepath.Dir(fn)
-						if notDir != "." {
-							extractDir = notDir
-							fn = filepath.Base(fn)
-						}
-					}
-					binfiles[fn] = struct{}{}
-				}
+			extractDir, err := listUpExeInZip(tmpZipName, binfiles)
+			if err != nil {
+				return err
 			}
 			arch[bits] = &Archtecture{
 				Url:        asset1.BrowserDownloadUrl,
