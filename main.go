@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 )
 
@@ -414,6 +415,7 @@ func mains(args []string) error {
 		for exe := range binfiles {
 			manifest.Bin = append(manifest.Bin, exe)
 		}
+		sort.Strings(manifest.Bin)
 	}
 	if manifest.Archtectures == nil && !*flagAnyCPU {
 		manifest.Archtectures = make(map[string]*Archtecture)
