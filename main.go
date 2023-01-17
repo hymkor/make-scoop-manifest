@@ -31,6 +31,7 @@ var (
 	flag64                   = flag.String("64", "amd64,64bit,win64", "When these strings are found, set architecture 64bit")
 	flagLicense              = flag.String("license", "", "Set license")
 	flagDescription          = flag.String("description", "", "Set description")
+	flagDownloadTo           = flag.String("downloadto", "", "Do not remove the downloaded zip files and save them onto the specified directory")
 )
 
 func queryReleases(user, repo string) ([]byte, error) {
@@ -333,7 +334,7 @@ func mains(args []string) error {
 				}
 			}
 		}
-	} else if *flagDownloadLatestAssets {
+	} else if *flagDownloadLatestAssets || *flagDownloadTo != "" {
 		if len(releases) < 1 {
 			return fmt.Errorf("%s/%s: no releases", name, repo)
 		}
@@ -358,15 +359,26 @@ func mains(args []string) error {
 			if err != nil {
 				return fmt.Errorf("%s: %w", url, err)
 			}
-			tmpFd, err := os.CreateTemp("", "make-scoop-manifest-*.zip")
-			if err != nil {
-				resp.Body.Close()
-				return err
+			var tmpFd *os.File
+			var tmpZipName string
+			if *flagDownloadTo != "" {
+				tmpZipName = filepath.Join(*flagDownloadTo, name)
+				tmpFd, err = os.Create(tmpZipName)
+				if err != nil {
+					resp.Body.Close()
+					return err
+				}
+				fmt.Fprintln(os.Stderr, "Save as", tmpZipName)
+			} else {
+				tmpFd, err = os.CreateTemp("", "make-scoop-manifest-*.zip")
+				if err != nil {
+					resp.Body.Close()
+					return err
+				}
+				tmpZipName = tmpFd.Name()
+				defer os.Remove(tmpZipName)
 			}
 			tag = releases[0].TagName
-
-			tmpZipName := tmpFd.Name()
-			defer os.Remove(tmpZipName)
 
 			io.Copy(tmpFd, resp.Body)
 			resp.Body.Close()
