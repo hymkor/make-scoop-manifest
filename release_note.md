@@ -7,9 +7,9 @@ Jan 25, 2023
     - It is same as -D, but does not remove ZIP file and leaves onto DIRECTORY.
 - Sort the items of "bin"
 - Add the option -license
-    - `-license "MIT"` is same as `--inline "{ \"license\":\"MIT\" }"`
+    - `-license "MIT"` is same as `-inline "{ \"license\":\"MIT\" }"`
 - Add the option -description
-    - `-description "XXX"` is same as `--inline "{ \"description\":\"XXX\" }"`
+    - `-description "XXX"` is same as `-inline "{ \"description\":\"XXX\" }"`
 
 v0.5.0
 ======
