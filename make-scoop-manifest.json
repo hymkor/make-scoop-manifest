@@ -1,16 +1,16 @@
 {
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "Make scoop manifest （そのまんまや！）",
     "homepage": "https://github.com/hymkor/make-scoop-manifest",
     "license": "MIT License",
     "architecture": {
         "32bit": {
-            "url": "https://github.com/hymkor/make-scoop-manifest/releases/download/v0.5.0/make-scoop-manifest-v0.5.0-windows-386.zip",
-            "hash": "f46a32e4dc8e158c28486ddf9d80619d449ce3c1401f967d162dedfdfed01cfc"
+            "url": "https://github.com/hymkor/make-scoop-manifest/releases/download/v0.6.0/make-scoop-manifest-v0.6.0-windows-386.zip",
+            "hash": "b57607cd8d6e54bddfbf44ead9aafc2a2bdbf921a8d4d4b7799c7e06bdea60b6"
         },
         "64bit": {
-            "url": "https://github.com/hymkor/make-scoop-manifest/releases/download/v0.5.0/make-scoop-manifest-v0.5.0-windows-amd64.zip",
-            "hash": "53b32fe893a4eed11938c7ec9a6a23dd8169a50aa7e4e180b042afedd81e2693"
+            "url": "https://github.com/hymkor/make-scoop-manifest/releases/download/v0.6.0/make-scoop-manifest-v0.6.0-windows-amd64.zip",
+            "hash": "a2e5248cf41f01e06459b8a31048262ea1478d6faf1d55eac708026950eff8c9"
         }
     },
     "bin": [
