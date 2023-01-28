@@ -101,11 +101,11 @@ make-scoop-manifest.exe -anycpu -g zat-kaoru-hayama/yShowVer -D > bucket/yShowVe
 ### mattn/twty
 
 ```
-make-scoop-manifest --inline "{ \"license\":\"MIT License\" }" -g mattn/twty -D -p > bucket/twty.json
+make-scoop-manifest -p -license "MIT License" -g mattn/twty -D > bucket/twty.json
 ```
 
 ### koron/vim-kaoriya
 
 ```
-make-scoop-manifest -p --inline "{ \"license\":\"Vim License\" }" -g koron/vim-kaoriya vim82-kaoriya-*.zip > bucket/vim-kaoriya.json
+make-scoop-manifest -p -license "Vim License" -g koron/vim-kaoriya vim82-kaoriya-*.zip > vim-kaoriya.json
 ```
