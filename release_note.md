@@ -1,3 +1,7 @@
+v0.7.0
+======
+Oct 26, 2023
+
 - Append keywords to judge architectures for Rust
     - for 32bit `486`, `586`, and `686`
     - for 64bit `x86_64`
