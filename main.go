@@ -2,7 +2,6 @@ package main
 
 import (
 	"archive/zip"
-	"bufio"
 	"bytes"
 	"crypto/sha256"
 	"encoding/json"
@@ -12,12 +11,12 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"sort"
 	"strings"
+
+	"github.com/hymkor/make-scoop-manifest/internal/gitdir"
 )
 
 var (
@@ -186,38 +185,6 @@ func listUpExeInZip(fname string, exeFiles map[string]struct{}) (string, error) 
 	return extractDir, nil
 }
 
-func quote(args []string, f func(string) error) error {
-	cmd := exec.Command(args[0], args[1:]...)
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	r, err := cmd.StdoutPipe()
-	if err != nil {
-		return err
-	}
-	defer r.Close()
-	cmd.Start()
-
-	sc := bufio.NewScanner(r)
-	for sc.Scan() {
-		//println(sc.Text())
-		if err := f(sc.Text()); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func listUpRemoteBranch() ([]string, error) {
-	branches := []string{}
-	quote([]string{"git", "remote", "show"}, func(line string) error {
-		branches = append(branches, strings.TrimSpace(line))
-		return nil
-	})
-	return branches, nil
-}
-
-var rxURL = regexp.MustCompile(`Push +URL: \w+@github.com:([\w-]+)/([\w-]+).git`)
-
 func getNameAndRepo() (string, string, error) {
 	if *flagUserAndRepo != "" {
 		var found bool
@@ -228,24 +195,7 @@ func getNameAndRepo() (string, string, error) {
 		}
 		return name, repo, nil
 	}
-	branch, err := listUpRemoteBranch()
-	if err != nil {
-		return "", "", err
-	}
-	if len(branch) < 1 {
-		return "", "", errors.New("remote branch not found")
-	}
-	var user, repo string
-	quote([]string{"git", "remote", "show", "-n", branch[0]}, func(line string) error {
-		m := rxURL.FindStringSubmatch(line)
-		if m != nil {
-			user = m[1]
-			repo = m[2]
-			return io.EOF
-		}
-		return nil
-	})
-	return user, repo, nil
+	return gitdir.GetNameAndRepo()
 }
 
 func writeWithCRLF(source []byte, w io.Writer) error {
