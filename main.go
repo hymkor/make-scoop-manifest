@@ -31,6 +31,7 @@ var (
 	flagLicense              = flag.String("license", "", "Set the value of \"license\" of the manifest")
 	flagDescription          = flag.String("description", "", "Set the value of \"description\" of the manifest")
 	flagDownloadTo           = flag.String("downloadto", "", "Do not remove the downloaded zip files and save them onto the specified directory")
+	flagBinPattern           = flag.String("binpattern", "*.exe", "The pattern for executables(separated with comma)")
 )
 
 func queryReleases(user, repo string) ([]byte, error) {
@@ -168,18 +169,24 @@ func listUpExeInZip(fname string, exeFiles map[string]struct{}) (string, error) 
 	}
 	defer zr.Close()
 
+	patterns := strings.Split(strings.ToLower(*flagBinPattern), ",")
+
 	var extractDir string
 	for _, f := range zr.File {
-		if strings.EqualFold(filepath.Ext(f.Name), ".exe") {
-			nm := f.Name
-			if *flagExtractDir {
-				notDir := filepath.Dir(nm)
-				if notDir != "." {
-					extractDir = notDir
-					nm = filepath.Base(nm)
+		lowerName := strings.ToLower(f.Name)
+		for _, pattern := range patterns {
+			if matched, err := filepath.Match(pattern, lowerName); err == nil && matched {
+				nm := f.Name
+				if *flagExtractDir {
+					notDir := filepath.Dir(nm)
+					if notDir != "." {
+						extractDir = notDir
+						nm = filepath.Base(nm)
+					}
 				}
+				exeFiles[nm] = struct{}{}
+				break
 			}
-			exeFiles[nm] = struct{}{}
 		}
 	}
 	return extractDir, nil
