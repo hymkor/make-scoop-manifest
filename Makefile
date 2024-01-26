@@ -13,7 +13,7 @@ GOOPT:=-ldflags "-s -w -X main.version=$(VERSION)"
 EXE:=$(shell go env GOEXE)
 
 all:
-	go fmt
+	go fmt ./...
 	$(SET) "CGO_ENABLED=0" && go build $(GOOPT)
 
 _dist:
