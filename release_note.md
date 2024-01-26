@@ -1,3 +1,5 @@
+- Add `-binpattern PATTERN` (for example: `-binpattern *.exe,*.ps1,*.cmd`)
+
 v0.7.0
 ======
 Oct 26, 2023
