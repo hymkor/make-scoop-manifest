@@ -1,4 +1,6 @@
-- Add `-binpattern PATTERN` (for example: `-binpattern *.exe,*.ps1,*.cmd`)
+- Add `-binpattern PATTERN` (for example: `-binpattern "*.exe,*.ps1,*.cmd"`)
+- Fix: the problem when repository name contains `.` (dot)
+- Fix: a panic occurs when assets given in the parameter is not found
 
 v0.7.0
 ======
