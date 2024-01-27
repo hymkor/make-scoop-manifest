@@ -374,10 +374,14 @@ func mains(args []string) error {
 	}
 	if *flagAnyCPU {
 		manifest.Version = strings.TrimPrefix(tag, "v")
-		manifest.UrlForAnyCPU = arch[""].Url
-		manifest.HashForAnyCPU = arch[""].Hash
+		arch1 := arch[""]
+		if arch1 == nil {
+			return errors.New("assets not found")
+		}
+		manifest.UrlForAnyCPU = arch1.Url
+		manifest.HashForAnyCPU = arch1.Hash
 		manifest.AutoUpdate.UrlForAnyCPU =
-			strings.ReplaceAll(arch[""].Url, manifest.Version, "$version")
+			strings.ReplaceAll(arch1.Url, manifest.Version, "$version")
 	} else {
 		for name, val := range arch {
 			manifest.Archtectures[name] = val
