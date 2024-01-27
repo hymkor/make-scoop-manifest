@@ -42,7 +42,7 @@ func listUpRemoteBranch() ([]string, error) {
 
 var (
 	rxSshUrl   = regexp.MustCompile(`Push +URL: \w+@github.com:([\w\.-]+)/([\w\.-]+)\.git`)
-	rxHttpsUrl = regexp.MustCompile(`Push +URL: https://github.com/([\w\.-]+)/([\w\.-]+)\.git`)
+	rxHttpsUrl = regexp.MustCompile(`Push +URL: https://github.com/([\w\.-]+)/([\w\.-]+?)(\.git)?$`)
 )
 
 func GetNameAndRepo() (string, string, error) {
