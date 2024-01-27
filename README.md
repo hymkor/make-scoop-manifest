@@ -4,9 +4,9 @@ make-scoop-manifest.exe
 This is is the tool to make the manifest file of the [scoop-installer](https://scoop.sh) for your applications.
 
 - Read releases information with GitHub-API
-- The zip files' names must contain the word: `32bit`,`64bit`,`386`,`amd64` or `arm64`
+- The zip files' names must contain the word: `32bit`, `64bit`, `386`, `486`, `586`, `686`, `amd64`, `x86_64` or `arm64`
     - If the executable is for AnyCPU, use the option `-anycpu`.
-- If the zip files' names contains `linux` or `macos`, they are ignored.
+- If the names of zip-files contain `linux` or `macos`, they are ignored.
 - Do not check the target is updated or not.
 
 The output sample is [here](https://github.com/hymkor/make-scoop-manifest/blob/master/make-scoop-manifest.json).
@@ -108,4 +108,10 @@ make-scoop-manifest -p -license "MIT License" -g mattn/twty -D > bucket/twty.jso
 
 ```
 make-scoop-manifest -p -license "Vim License" -g koron/vim-kaoriya vim82-kaoriya-*.zip > vim-kaoriya.json
+```
+
+### hymkor/Download-Count.ps1 (PowerShell package)
+
+```
+make-scoop-manifest.exe -D -g hymkor/Download-Count.ps1 -binpattern "*.ps1" -anycpu > Download-Count.ps1.json
 ```
