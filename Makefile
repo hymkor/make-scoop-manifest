@@ -30,6 +30,9 @@ clean-dist:
 manifest:
 	make-scoop-manifest *-windows-*.zip > $(NAME).json
 
+d-manifest:
+	make-scoop-manifest -D > $(NAME).json
+
 release:
 	gh release create -d --notes "" -t $(VERSION) $(VERSION) $(wildcard $(NAME)-$(VERSION)-*.zip)
 
