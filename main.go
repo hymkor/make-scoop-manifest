@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	"github.com/hymkor/make-scoop-manifest/internal/gitdir"
+	"github.com/hymkor/make-scoop-manifest/internal/github"
 )
 
 var (
@@ -34,41 +35,7 @@ var (
 	flagBinPattern           = flag.String("binpattern", "*.exe", "The pattern for executables(separated with comma)")
 )
 
-func queryReleases(user, repo string) ([]byte, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases", user, repo)
-	fmt.Fprintln(os.Stderr, "Get:", url)
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	return io.ReadAll(resp.Body)
-}
-
-type Asset struct {
-	Name               string `json:"name"`
-	BrowserDownloadUrl string `json:"browser_download_url"`
-	tagName            string
-}
-
-type Release struct {
-	TagName string   `json:"tag_name"`
-	Assets  []*Asset `json:"assets"`
-}
-
-func getReleases(name, repo string) ([]*Release, error) {
-	releasesStr, err := queryReleases(name, repo)
-	if err != nil {
-		return nil, fmt.Errorf("getReleases: %w", err)
-	}
-	var releases []*Release
-	if err := json.Unmarshal(releasesStr, &releases); err != nil {
-		return nil, fmt.Errorf("json.Unmarshal: %w", err)
-	}
-	return releases, nil
-}
-
-func seekAssets(releases []*Release, fname string) (string, string) {
+func seekAssets(releases []*github.Release, fname string) (string, string) {
 	for _, rel := range releases {
 		for _, a := range rel.Assets {
 			if a.Name == fname {
@@ -131,35 +98,6 @@ func getBits(s string) string {
 		return "arm64"
 	}
 	return ""
-}
-
-func queryDescription(user, repo string) ([]byte, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s", user, repo)
-	fmt.Fprintln(os.Stderr, "Get:", url)
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	return io.ReadAll(resp.Body)
-}
-
-type Description struct {
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	License     map[string]string `json:"license"`
-}
-
-func getDescription(user, repo string) (*Description, error) {
-	bin, err := queryDescription(user, repo)
-	if err != nil {
-		return nil, err
-	}
-	var desc *Description
-	if err = json.Unmarshal(bin, &desc); err != nil {
-		return nil, err
-	}
-	return desc, nil
 }
 
 func listUpExeInZip(fname string, exeFiles map[string]struct{}) (string, error) {
@@ -249,7 +187,7 @@ func mains(args []string) error {
 	//println("name:", name)
 	//println("repo:", repo)
 
-	releases, err := getReleases(name, repo)
+	releases, err := github.GetReleases(name, repo, os.Stderr)
 	if err != nil {
 		return fmt.Errorf("getReleases: %w", err)
 	}
@@ -419,7 +357,7 @@ func mains(args []string) error {
 			manifest.AutoUpdate.Archtectures[bits] = &Archtecture{Url: autoupdate}
 		}
 	}
-	if desc, err := getDescription(name, repo); err == nil {
+	if desc, err := github.GetDescription(name, repo, os.Stderr); err == nil {
 		if manifest.Description == "" {
 			description := desc.Description
 			if description == "" {
