@@ -221,6 +221,25 @@ func downloadAsTmpZip(url, name string) (*downloadAsset, error) {
 	}, nil
 }
 
+func downloadAndGetArchitecture(url, name string, foundExecutables map[string]struct{}) (*Archtecture, error) {
+	downloadZip, err := downloadAsTmpZip(url, name)
+	if err != nil {
+		return nil, err
+	}
+	defer downloadZip.Dispose()
+
+	extractDir, err := listUpExeInZip(downloadZip.zipName, foundExecutables)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Archtecture{
+		Url:        url,
+		Hash:       downloadZip.hash,
+		ExtractDir: extractDir,
+	}, nil
+}
+
 func mains(args []string) error {
 	if len(args) <= 0 && !*flagDownloadLatestAssets && *flagDownloadTo == "" {
 		flag.PrintDefaults()
@@ -304,20 +323,9 @@ func mains(args []string) error {
 			url = asset1.BrowserDownloadUrl
 			fmt.Fprintln(os.Stderr, "Download:", url)
 
-			downloadZip, err := downloadAsTmpZip(url, name)
+			arch[bits], err = downloadAndGetArchitecture(url, name, binfiles)
 			if err != nil {
 				return err
-			}
-			defer downloadZip.Dispose()
-
-			extractDir, err := listUpExeInZip(downloadZip.zipName, binfiles)
-			if err != nil {
-				return err
-			}
-			arch[bits] = &Archtecture{
-				Url:        asset1.BrowserDownloadUrl,
-				Hash:       downloadZip.hash,
-				ExtractDir: extractDir,
 			}
 			tag = releases[0].TagName
 		}
