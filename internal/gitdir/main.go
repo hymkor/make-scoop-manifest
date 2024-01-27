@@ -40,7 +40,10 @@ func listUpRemoteBranch() ([]string, error) {
 	return branches, nil
 }
 
-var rxURL = regexp.MustCompile(`Push +URL: \w+@github.com:([\w-\.]+)/([\w-\.]+).git`)
+var (
+	rxSshUrl   = regexp.MustCompile(`Push +URL: \w+@github.com:([\w\.-]+)/([\w\.-]+)\.git`)
+	rxHttpsUrl = regexp.MustCompile(`Push +URL: https://github.com/([\w\.-]+)/([\w\.-]+)\.git`)
+)
 
 func GetNameAndRepo() (string, string, error) {
 	branch, err := listUpRemoteBranch()
@@ -52,8 +55,12 @@ func GetNameAndRepo() (string, string, error) {
 	}
 	var user, repo string
 	quote([]string{"git", "remote", "show", "-n", branch[0]}, func(line string) error {
-		m := rxURL.FindStringSubmatch(line)
-		if m != nil {
+		if m := rxSshUrl.FindStringSubmatch(line); m != nil {
+			user = m[1]
+			repo = m[2]
+			return io.EOF
+		}
+		if m := rxHttpsUrl.FindStringSubmatch(line); m != nil {
 			user = m[1]
 			repo = m[2]
 			return io.EOF
