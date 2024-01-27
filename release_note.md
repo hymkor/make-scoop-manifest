@@ -3,8 +3,8 @@ v0.8.0
 Jan 27, 2024
 
 - Add `-binpattern PATTERN` (for example: `-binpattern "*.exe,*.ps1,*.cmd"`)
-- Fix: the problem when repository name contains `.` (dot)
-- Fix: a panic occurs when assets given in the parameter is not found
+- Fix: the problem that the repository could not be found when repository name contains `.` (dot)
+- Fix: the problem that a panic occurs when assets given in the parameter is not found
 
 v0.7.0
 ======
