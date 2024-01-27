@@ -1,3 +1,7 @@
+v0.9.0
+======
+Jan 27, 2024
+
 - Support the repository cloned by https when `-g` option is not used.
 
 v0.8.0
