@@ -21,12 +21,13 @@ func queryReleases(user, repo string, log io.Writer) ([]byte, error) {
 type Asset struct {
 	Name               string `json:"name"`
 	BrowserDownloadUrl string `json:"browser_download_url"`
-	tagName            string
 }
 
 type Release struct {
-	TagName string   `json:"tag_name"`
-	Assets  []*Asset `json:"assets"`
+	TagName    string   `json:"tag_name"`
+	Assets     []*Asset `json:"assets"`
+	TarballUrl string   `json:"tarball_url"`
+	ZipballUrl string   `json:"zipball_url"`
 }
 
 func GetReleases(name, repo string, log io.Writer) ([]*Release, error) {
