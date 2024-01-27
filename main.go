@@ -171,6 +171,56 @@ func isWindowsZipName(name string) bool {
 	return true
 }
 
+type downloadAsset struct {
+	zipName string
+	hash    string
+	tag     string
+	url     string
+}
+
+func (d *downloadAsset) Dispose() {
+	os.Remove(d.zipName)
+}
+
+func downloadAsTmpZip(url, name string) (*downloadAsset, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", url, err)
+	}
+	defer resp.Body.Close()
+
+	var tmpFd *os.File
+	var tmpZipName string
+	if *flagDownloadTo != "" {
+		tmpZipName = filepath.Join(*flagDownloadTo, name)
+		tmpFd, err = os.Create(tmpZipName)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Fprintln(os.Stderr, "Save as", tmpZipName)
+	} else {
+		tmpFd, err = os.CreateTemp("", "make-scoop-manifest-*.zip")
+		if err != nil {
+			return nil, err
+		}
+		tmpZipName = tmpFd.Name()
+	}
+
+	io.Copy(tmpFd, resp.Body)
+
+	tmpFd.Seek(0, 0)
+	h := sha256.New()
+	io.Copy(h, tmpFd)
+	hash := fmt.Sprintf("%x", h.Sum(nil))
+	tmpFd.Close()
+
+	return &downloadAsset{
+		zipName: tmpZipName,
+		hash:    hash,
+		url:     url,
+	}, nil
+}
+
 func mains(args []string) error {
 	if len(args) <= 0 && !*flagDownloadLatestAssets && *flagDownloadTo == "" {
 		flag.PrintDefaults()
@@ -253,49 +303,23 @@ func mains(args []string) error {
 			}
 			url = asset1.BrowserDownloadUrl
 			fmt.Fprintln(os.Stderr, "Download:", url)
-			resp, err := http.Get(url)
+
+			downloadZip, err := downloadAsTmpZip(url, name)
 			if err != nil {
-				return fmt.Errorf("%s: %w", url, err)
+				return err
 			}
-			var tmpFd *os.File
-			var tmpZipName string
-			if *flagDownloadTo != "" {
-				tmpZipName = filepath.Join(*flagDownloadTo, name)
-				tmpFd, err = os.Create(tmpZipName)
-				if err != nil {
-					resp.Body.Close()
-					return err
-				}
-				fmt.Fprintln(os.Stderr, "Save as", tmpZipName)
-			} else {
-				tmpFd, err = os.CreateTemp("", "make-scoop-manifest-*.zip")
-				if err != nil {
-					resp.Body.Close()
-					return err
-				}
-				tmpZipName = tmpFd.Name()
-				defer os.Remove(tmpZipName)
-			}
-			tag = releases[0].TagName
+			defer downloadZip.Dispose()
 
-			io.Copy(tmpFd, resp.Body)
-			resp.Body.Close()
-
-			tmpFd.Seek(0, 0)
-			h := sha256.New()
-			io.Copy(h, tmpFd)
-			hash := fmt.Sprintf("%x", h.Sum(nil))
-			tmpFd.Close()
-
-			extractDir, err := listUpExeInZip(tmpZipName, binfiles)
+			extractDir, err := listUpExeInZip(downloadZip.zipName, binfiles)
 			if err != nil {
 				return err
 			}
 			arch[bits] = &Archtecture{
 				Url:        asset1.BrowserDownloadUrl,
-				Hash:       hash,
+				Hash:       downloadZip.hash,
 				ExtractDir: extractDir,
 			}
+			tag = releases[0].TagName
 		}
 	}
 
