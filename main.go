@@ -33,6 +33,7 @@ var (
 	flagDescription          = flag.String("description", "", "Set the value of \"description\" of the manifest")
 	flagDownloadTo           = flag.String("downloadto", "", "Do not remove the downloaded zip files and save them onto the specified directory")
 	flagBinPattern           = flag.String("binpattern", "*.exe", "The pattern for executables(separated with comma)")
+	flagIgnoreWords          = flag.String("ignore", "linux,macos,freebsd,netbsd,darwin,plan9", "ignore the zipfile whose name contains these words")
 )
 
 func seekAssets(releases []*github.Release, fname string) (string, string) {
@@ -161,10 +162,8 @@ func writeWithCRLF(source []byte, w io.Writer) error {
 	}
 }
 
-var ignoreWords = flag.String("ignore", "linux,macos,freebsd,netbsd,darwin,plan9", "ignore the zipfile whose name contains these words")
-
 func isWindowsZipName(name string) bool {
-	for _, word := range strings.Split(*ignoreWords, ",") {
+	for _, word := range strings.Split(*flagIgnoreWords, ",") {
 		if strings.Contains(name, word) {
 			return false
 		}
