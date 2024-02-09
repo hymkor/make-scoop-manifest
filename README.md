@@ -115,3 +115,11 @@ make-scoop-manifest -p -license "Vim License" -g koron/vim-kaoriya vim82-kaoriya
 ```
 make-scoop-manifest.exe -D -g hymkor/Download-Count.ps1 -binpattern "*.ps1" -anycpu > Download-Count.ps1.json
 ```
+
+### mattn/bsky
+
+```
+make-scoop-manifest.exe -license MIT -D -g mattn/bsky -64 "" > bsky.json
+```
+
+There are only 64bit packages in the releases page, therefore we should give `-64 ""` as an option to regard `bsky-windows-X.Y.Z.zip` as 64bit.
