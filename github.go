@@ -93,7 +93,7 @@ type Manifest struct {
 	UrlForAnyCPU  string                  `json:"url,omitempty"`
 	HashForAnyCPU string                  `json:"hash,omitempty"`
 	Bin           []string                `json:"bin"`
-	CheckVer      string                  `json:"checkver,omitempty"`
+	CheckVer      any                     `json:"checkver,omitempty"`
 	AutoUpdate    *AutoUpdate             `json:"autoupdate,omitempty"`
 }
 
@@ -367,7 +367,7 @@ func tryGithub(args []string) error {
 		manifest.Homepage = fmt.Sprintf(
 			"https://github.com/%s/%s", name, repo)
 	}
-	if !*flagNoAutoUpdate && manifest.CheckVer == "" {
+	if !*flagNoAutoUpdate && manifest.CheckVer == nil {
 		manifest.CheckVer = "github"
 	}
 	if *flagAnyCPU {
