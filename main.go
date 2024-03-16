@@ -21,6 +21,7 @@ var (
 	flagDownloadTo           = flag.String("downloadto", "", "Do not remove the downloaded zip files and save them onto the specified directory")
 	flagBinPattern           = flag.String("binpattern", "*.exe", "The pattern for executables(separated with comma)")
 	flagIgnoreWords          = flag.String("ignore", "linux,macos,freebsd,netbsd,darwin,plan9", "ignore the zipfile whose name contains these words")
+	flagNoAutoUpdate         = flag.Bool("noautoupdate", false, "disable autoupdate")
 )
 
 var version string

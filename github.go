@@ -61,8 +61,8 @@ type Manifest struct {
 	UrlForAnyCPU  string                  `json:"url,omitempty"`
 	HashForAnyCPU string                  `json:"hash,omitempty"`
 	Bin           []string                `json:"bin"`
-	CheckVer      string                  `json:"checkver"`
-	AutoUpdate    AutoUpdate              `json:"autoupdate"`
+	CheckVer      string                  `json:"checkver,omitempty"`
+	AutoUpdate    *AutoUpdate             `json:"autoupdate,omitempty"`
 }
 
 func getBits(s string) string {
@@ -320,6 +320,9 @@ func tryGithub(args []string) error {
 		}
 	}
 	var manifest Manifest
+	if !*flagNoAutoUpdate {
+		manifest.AutoUpdate = &AutoUpdate{}
+	}
 	if input != nil {
 		if err = json.Unmarshal(input, &manifest); err != nil {
 			return err
@@ -340,14 +343,14 @@ func tryGithub(args []string) error {
 	if manifest.Archtectures == nil && !*flagAnyCPU {
 		manifest.Archtectures = make(map[string]*Archtecture)
 	}
-	if manifest.AutoUpdate.Archtectures == nil {
+	if manifest.AutoUpdate != nil && manifest.AutoUpdate.Archtectures == nil {
 		manifest.AutoUpdate.Archtectures = map[string]*Archtecture{}
 	}
 	if manifest.Homepage == "" {
 		manifest.Homepage = fmt.Sprintf(
 			"https://github.com/%s/%s", name, repo)
 	}
-	if manifest.CheckVer == "" {
+	if !*flagNoAutoUpdate && manifest.CheckVer == "" {
 		manifest.CheckVer = "github"
 	}
 	if *flagAnyCPU {
@@ -358,8 +361,10 @@ func tryGithub(args []string) error {
 		}
 		manifest.UrlForAnyCPU = arch1.Url
 		manifest.HashForAnyCPU = arch1.Hash
-		manifest.AutoUpdate.UrlForAnyCPU =
-			strings.ReplaceAll(arch1.Url, manifest.Version, "$version")
+		if manifest.AutoUpdate != nil {
+			manifest.AutoUpdate.UrlForAnyCPU =
+				strings.ReplaceAll(arch1.Url, manifest.Version, "$version")
+		}
 	} else {
 		for name, val := range arch {
 			manifest.Archtectures[name] = val
@@ -367,7 +372,9 @@ func tryGithub(args []string) error {
 
 			autoupdate := strings.ReplaceAll(val.Url, manifest.Version, "$version")
 			bits := getBits(val.Url)
-			manifest.AutoUpdate.Archtectures[bits] = &Archtecture{Url: autoupdate}
+			if manifest.AutoUpdate != nil {
+				manifest.AutoUpdate.Archtectures[bits] = &Archtecture{Url: autoupdate}
+			}
 		}
 	}
 	if desc, err := github.GetDescription(name, repo, os.Stderr); err == nil {
