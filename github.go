@@ -18,6 +18,38 @@ import (
 	"github.com/hymkor/make-scoop-manifest/internal/github"
 )
 
+func readTemplate() (*Manifest, error) {
+	var manifest Manifest
+	var input []byte
+
+	if *flagInlineTemplate != "" {
+		input = []byte(*flagInlineTemplate)
+	} else if *flagStdinTemplate {
+		var err error
+		input, err = io.ReadAll(os.Stdin)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+	}
+	if input != nil {
+		if err := json.Unmarshal(input, &manifest); err != nil {
+			return nil, err
+		}
+	}
+	return &manifest, nil
+}
+
+func keysToSlice(map1 map[string]struct{}) (slice []string) {
+	if map1 == nil {
+		return nil
+	}
+	for key := range map1 {
+		slice = append(slice, key)
+	}
+	sort.Strings(slice)
+	return slice
+}
+
 func seekAssets(releases []*github.Release, fname string) (string, string) {
 	for _, rel := range releases {
 		for _, a := range rel.Assets {
@@ -308,25 +340,13 @@ func tryGithub(args []string) error {
 			tag = releases[0].TagName
 		}
 	}
-
-	var input []byte
-
-	if *flagInlineTemplate != "" {
-		input = []byte(*flagInlineTemplate)
-	} else if *flagStdinTemplate {
-		input, err = io.ReadAll(os.Stdin)
-		if err != nil && err != io.EOF {
-			return err
-		}
+	manifest, err := readTemplate()
+	if err != nil {
+		return err
 	}
-	var manifest Manifest
+
 	if !*flagNoAutoUpdate {
 		manifest.AutoUpdate = &AutoUpdate{}
-	}
-	if input != nil {
-		if err = json.Unmarshal(input, &manifest); err != nil {
-			return err
-		}
 	}
 	if *flagDescription != "" {
 		manifest.Description = *flagDescription
@@ -334,11 +354,8 @@ func tryGithub(args []string) error {
 	if *flagLicense != "" {
 		manifest.License = *flagLicense
 	}
-	if binfiles != nil {
-		for exe := range binfiles {
-			manifest.Bin = append(manifest.Bin, exe)
-		}
-		sort.Strings(manifest.Bin)
+	if len(manifest.Bin) <= 0 {
+		manifest.Bin = keysToSlice(binfiles)
 	}
 	if manifest.Archtectures == nil && !*flagAnyCPU {
 		manifest.Archtectures = make(map[string]*Archtecture)
@@ -394,7 +411,7 @@ func tryGithub(args []string) error {
 		}
 	}
 
-	jsonBin, err := json.MarshalIndent(&manifest, "", "    ")
+	jsonBin, err := json.MarshalIndent(manifest, "", "    ")
 	if err != nil {
 		return err
 	}

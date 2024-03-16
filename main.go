@@ -22,12 +22,16 @@ var (
 	flagBinPattern           = flag.String("binpattern", "*.exe", "The pattern for executables(separated with comma)")
 	flagIgnoreWords          = flag.String("ignore", "linux,macos,freebsd,netbsd,darwin,plan9", "ignore the zipfile whose name contains these words")
 	flagNoAutoUpdate         = flag.Bool("noautoupdate", false, "disable autoupdate")
+	flagFromHtml             = flag.String("fromhtml", "", "Extract the URLs of ZIP files from the HTML of the specified URL")
+	flagVersionPattern       = flag.String("versionpattern", `v\d+\.\d+\.\d+`, "Set Version matching pattern for -downloadpage")
 )
 
 var version string
 
 func mains(args []string) error {
-	if len(args) > 0 || *flagDownloadLatestAssets || *flagDownloadTo != "" {
+	if *flagFromHtml != "" {
+		return tryFromHtml(*flagFromHtml)
+	} else if len(args) > 0 || *flagDownloadLatestAssets || *flagDownloadTo != "" {
 		return tryGithub(args)
 	} else {
 		flag.PrintDefaults()
