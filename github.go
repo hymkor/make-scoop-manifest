@@ -67,14 +67,14 @@ type Manifest struct {
 
 func getBits(s string) string {
 	s = strings.ToLower(s)
-	for _, keyword := range strings.Split(*flag32, ",") {
-		if strings.Contains(s, keyword) {
-			return "32bit"
-		}
-	}
 	for _, keyword := range strings.Split(*flag64, ",") {
 		if strings.Contains(s, keyword) {
 			return "64bit"
+		}
+	}
+	for _, keyword := range strings.Split(*flag32, ",") {
+		if strings.Contains(s, keyword) {
+			return "32bit"
 		}
 	}
 	if strings.Contains(s, "arm64") {
