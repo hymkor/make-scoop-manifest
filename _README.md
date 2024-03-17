@@ -118,14 +118,6 @@ make-scoop-manifest.exe -license MIT -D -g mattn/bsky -64 "" > bsky.json
 
 There are only 64bit packages in the releases page, therefore we should give `-64 ""` as an option to regard `bsky-windows-X.Y.Z.zip` as 64bit.
 
-### vim nightly build
-
-```
-make-scoop-manifest.exe -32 "x86" -64 "x64" -license Vim -D -ignore "pdb" -g vim/vim-win32-installer > vim-nightly.json
-```
-
-It installs from https://github.com/vim/vim-win32-installer/releases
-
 ### vim latest stable (experimentally)
 
 - Get the URLs of ZIP files from the HTML of https://www.vim.org/download.php
