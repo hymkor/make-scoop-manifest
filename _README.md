@@ -104,12 +104,6 @@ make-scoop-manifest.exe -anycpu -g zat-kaoru-hayama/yShowVer -D > bucket/yShowVe
 make-scoop-manifest -p -license "MIT License" -g mattn/twty -D > bucket/twty.json
 ```
 
-### koron/vim-kaoriya
-
-```
-make-scoop-manifest -p -license "Vim License" -g koron/vim-kaoriya vim82-kaoriya-*.zip > vim-kaoriya.json
-```
-
 ### hymkor/Download-Count.ps1 (PowerShell package)
 
 ```
