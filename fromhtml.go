@@ -107,7 +107,7 @@ func tryFromHtml(downloadPageUrl string) error {
 			manifest.Archtectures[bit] = arch
 		}
 	}
-	if len(manifest.Bin) <= 0 {
+	if manifest.Bin == nil {
 		manifest.Bin = keysToSlice(binfiles)
 	}
 	jsonBin, err := json.MarshalIndent(manifest, "", "    ")

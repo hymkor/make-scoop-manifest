@@ -92,7 +92,7 @@ type Manifest struct {
 	Archtectures  map[string]*Archtecture `json:"architecture,omitempty"`
 	UrlForAnyCPU  string                  `json:"url,omitempty"`
 	HashForAnyCPU string                  `json:"hash,omitempty"`
-	Bin           []string                `json:"bin"`
+	Bin           any                     `json:"bin"`
 	CheckVer      any                     `json:"checkver,omitempty"`
 	AutoUpdate    *AutoUpdate             `json:"autoupdate,omitempty"`
 }
@@ -354,7 +354,7 @@ func tryGithub(args []string) error {
 	if *flagLicense != "" {
 		manifest.License = *flagLicense
 	}
-	if len(manifest.Bin) <= 0 {
+	if manifest.Bin == nil {
 		manifest.Bin = keysToSlice(binfiles)
 	}
 	if manifest.Archtectures == nil && !*flagAnyCPU {
