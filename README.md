@@ -117,3 +117,35 @@ make-scoop-manifest.exe -license MIT -D -g mattn/bsky -64 "" > bsky.json
 ```
 
 There are only 64bit packages in the releases page, therefore we should give `-64 ""` as an option to regard `bsky-windows-X.Y.Z.zip` as 64bit.
+
+### vim latest stable (experimentally)
+
+- Get the URLs of ZIP files from the HTML of https://www.vim.org/download.php
+- Only `vim.exe` and `gvim.exe` are installed on `scoop install`
+- Registries are not modified on `scoop install`
+- Some JSON-fields are gived with template from PowerShell Script ([examples/up-vim.ps1])
+
+[examples/up-vim.ps1]: ./examples/up-vim.ps1
+
+```examples\up-vim.ps1
+$template = @'
+{
+    "checkver":{
+        "regex":"gvim_(?<version>(?<major>\\d+)\\.(?<minor>\\d+)\\.\\d{1,3})_x64_signed\\.zip"
+    },
+    "autoupdate":{
+        "architecture":{
+            "64bit":{
+                "url":"https://github.com/vim/vim-win32-installer/releases/download/v$version/gvim_$version_x64_signed.zip",
+                "extract_dir":"vim\\vim$major$minor"
+            },
+            "32bit":{
+                "url":"https://github.com/vim/vim-win32-installer/releases/download/v$version/gvim_$version_x86_signed.zip",
+                "extract_dir":"vim\\vim$major$minor"
+            }
+        }
+    }
+}
+'@
+.\make-scoop-manifest.exe -p -inline $template -license Vim -binpattern "*vim.exe" -fromhtml https://www.vim.org/download.php > vim-hogehoge.json
+```
