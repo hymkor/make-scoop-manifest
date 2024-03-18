@@ -1,10 +1,10 @@
 make-scoop-manifest.exe
 =======================
 
-This is is the tool to make the manifest file of the [scoop-installer](https://scoop.sh) for your applications.
+This is a tool to make the manifest file of the [scoop-installer](https://scoop.sh) for your application on GitHub Releases.
 
-- Read releases information with GitHub-API
-- The zip files' names must contain the word: `32bit`, `64bit`, `386`, `486`, `586`, `686`, `amd64`, `x86_64` or `arm64`
+- Your application must be packaged as a zip-file and attached as an asset in GitHub Releases
+- The names of zip-files names must contain the word: `32bit`, `64bit`, `386`, `486`, `586`, `686`, `amd64`, `x86_64`, `x64` or `arm64`
     - If the executable is for AnyCPU, use the option `-anycpu`.
 - If the names of zip-files contain `linux` or `macos`, they are ignored.
 - Do not check the target is updated or not.
