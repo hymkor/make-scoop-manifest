@@ -1,8 +1,7 @@
 - New option: `-noautoupdate`: disable AutoUpdate
 - Seek the pattern for 64 bit prior to that for 32 bit now to fix the problem that `x86_64` was judged as the 32 bit architecture
 - The pattern `x64` is appended to the default value of the option `-64`
-- The field "checkver" can be set not only `string` but also `interface{}`
-- The field "bin" can be set not only `[]string` but also `interface{}`
+- When `-inline` or `-stdin` option is specified to use the template of JSON, the fields "checkver" and "bin" can be set not only string but also any JSON Object
 
 v0.9.0
 ======
