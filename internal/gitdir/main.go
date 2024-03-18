@@ -3,6 +3,7 @@ package gitdir
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -10,7 +11,8 @@ import (
 	"strings"
 )
 
-func quote(args []string, f func(string) error) error {
+func quote(args []string, tee io.Writer, f func(string) error) error {
+	fmt.Fprintln(tee, args)
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
@@ -23,7 +25,7 @@ func quote(args []string, f func(string) error) error {
 
 	sc := bufio.NewScanner(r)
 	for sc.Scan() {
-		//println(sc.Text())
+		fmt.Fprintln(tee, ">", sc.Text())
 		if err := f(sc.Text()); err != nil {
 			return err
 		}
@@ -31,9 +33,9 @@ func quote(args []string, f func(string) error) error {
 	return nil
 }
 
-func listUpRemoteBranch() ([]string, error) {
+func listUpRemoteBranch(tee io.Writer) ([]string, error) {
 	branches := []string{}
-	quote([]string{"git", "remote", "show"}, func(line string) error {
+	quote([]string{"git", "remote", "show"}, tee, func(line string) error {
 		branches = append(branches, strings.TrimSpace(line))
 		return nil
 	})
@@ -45,8 +47,8 @@ var (
 	rxHttpsUrl = regexp.MustCompile(`Push +URL: https://github.com/([\w\.-]+)/([\w\.-]+?)(\.git)?$`)
 )
 
-func GetNameAndRepo() (string, string, error) {
-	branch, err := listUpRemoteBranch()
+func GetNameAndRepo(tee io.Writer) (string, string, error) {
+	branch, err := listUpRemoteBranch(tee)
 	if err != nil {
 		return "", "", err
 	}
@@ -54,7 +56,7 @@ func GetNameAndRepo() (string, string, error) {
 		return "", "", errors.New("remote branch not found")
 	}
 	var user, repo string
-	quote([]string{"git", "remote", "show", "-n", branch[0]}, func(line string) error {
+	quote([]string{"git", "remote", "show", "-n", branch[0]}, tee, func(line string) error {
 		if m := rxSshUrl.FindStringSubmatch(line); m != nil {
 			user = m[1]
 			repo = m[2]
