@@ -279,7 +279,10 @@ func downloadAndGetArchitecture(url, name string, foundExecutables map[string]st
 	}, nil
 }
 
-var rxRepository = regexp.MustCompile(`^(?:https://github.com/)?([^/]+)/([^/]+)`)
+var (
+	rxRepositoryG = regexp.MustCompile(`^git@github.com:([^/]+)/(.+)$`)
+	rxRepositoryH = regexp.MustCompile(`^(?:https://github.com/)?([^/]+)/([^/]+)`)
+)
 
 func mains(args []string) error {
 	// for compatiblity
@@ -290,18 +293,29 @@ func mains(args []string) error {
 	var owner, repos string
 
 	for _, arg1 := range args {
-		if m := rxRepository.FindStringSubmatch(arg1); m != nil {
-			owner = m[1]
-			repos = m[2]
-		} else {
-			files, err := filepath.Glob(arg1)
-			if err != nil {
-				files = []string{arg1}
+		if repos == "" && !strings.EqualFold(filepath.Ext(arg1), ".zip") {
+			if m := rxRepositoryG.FindStringSubmatch(arg1); m != nil {
+				owner = m[1]
+				if strings.EqualFold(filepath.Ext(m[2]), ".git") {
+					repos = m[2][:len(m[2])-4]
+				} else {
+					repos = m[2]
+				}
+				continue
 			}
-			for _, fname := range files {
-				name := filepath.Base(fname)
-				localfiles[name] = fname
+			if m := rxRepositoryH.FindStringSubmatch(arg1); m != nil {
+				owner = m[1]
+				repos = m[2]
+				continue
 			}
+		}
+		files, err := filepath.Glob(arg1)
+		if err != nil {
+			files = []string{arg1}
+		}
+		for _, fname := range files {
+			name := filepath.Base(fname)
+			localfiles[name] = fname
 		}
 	}
 	if owner == "" {
