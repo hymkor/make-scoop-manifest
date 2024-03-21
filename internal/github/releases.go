@@ -28,6 +28,8 @@ type Release struct {
 	Assets     []*Asset `json:"assets"`
 	TarballUrl string   `json:"tarball_url"`
 	ZipballUrl string   `json:"zipball_url"`
+	Draft      bool     `json:"draft"`
+	Prerelease bool     `json:"prerelease"`
 }
 
 func GetReleases(name, repo string, log io.Writer) ([]*Release, error) {
@@ -38,6 +40,9 @@ func GetReleases(name, repo string, log io.Writer) ([]*Release, error) {
 	var releases []*Release
 	if err := json.Unmarshal(releasesStr, &releases); err != nil {
 		return nil, fmt.Errorf("json.Unmarshal: %w", err)
+	}
+	for len(releases) > 0 && (releases[0].Draft || releases[0].Prerelease) {
+		releases = releases[1:]
 	}
 	return releases, nil
 }
