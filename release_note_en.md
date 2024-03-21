@@ -1,7 +1,9 @@
 - New option: `-noautoupdate`: disable AutoUpdate
 - Seek the pattern for 64 bit prior to that for 32 bit now to fix the problem that `x86_64` was judged as the 32 bit architecture
 - The pattern `x64` is appended to the default value of the option `-64`
-- When `-inline` or `-stdin` option is specified to use the template of JSON, the fields "checkver" and "bin" can be set not only string but also any JSON Object
+- The field `"checkver"` and `"bin"` can be set not only an array of strings, not also any JSON object.
+    - Previously, even a single file was ever output as `"bin": ["foo.exe"]`, now it can be output as `"bin":"foo.exe"`
+    - The template is given with `-inline` or `-stdin`, those fields can be recived as is
 - `-D` can be omitted now. It is automatically be downloaded from GitHub when filenames on the localdisk are not given.
 - `-g` can be omitted now. Repository name can be written on the commandline without `-g`
 - https://github.com/OWNER/REPOS and git@github.com:OWNER/REPOS.git are also treated as Repository Identifier now
