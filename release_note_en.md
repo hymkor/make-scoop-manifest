@@ -4,7 +4,9 @@
 - When `-inline` or `-stdin` option is specified to use the template of JSON, the fields "checkver" and "bin" can be set not only string but also any JSON Object
 - `-D` can be omitted now. It is automatically be downloaded from GitHub when filenames on the localdisk are not given.
 - `-g` can be omitted now. Repository name can be written on the commandline without `-g`
+- https://github.com/OWNER/REPOS and git@github.com:OWNER/REPOS.git are also treated as Repository Identifier now
 - Ignored assets are reported to STDERR when they are specified `-ignore`
+- Ignore the releases marked as a pre-release and draft
 
 v0.9.0
 ======
