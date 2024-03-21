@@ -7,6 +7,7 @@
 - https://github.com/OWNER/REPOS and git@github.com:OWNER/REPOS.git are also treated as Repository Identifier now
 - Ignored assets are reported to STDERR when they are specified `-ignore`
 - Ignore the releases marked as a pre-release and draft
+- Report the message of server-errors to user
 
 v0.9.0
 ======

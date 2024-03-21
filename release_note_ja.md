@@ -8,6 +8,7 @@
 - レポジトリ名として https://github.com/OWNER/REPOS や git@github.com:OWNER/REPOS.git も受け入れるようにした
 - `-ignore` のキーワードが理由で無視された Assets はログに出力するようにした
 - draft や pre-release は無視するようにした
+- サーバエラーが発生した時、それをユーザに通知するようにした。
 
 v0.9.0
 ======
