@@ -75,56 +75,66 @@ type _Flag interface {
 	usage() string
 }
 
-var flags = map[string]_Flag{}
+type FlagSet struct {
+	flags      map[string]_Flag
+	nonOptions []string
+}
 
-func String(name, defaults, usage string) *string {
+func (f *FlagSet) String(name, defaults, usage string) *string {
 	o := &_StringFlag{
 		_name:    "-" + name,
 		_default: defaults,
 		_usage:   usage,
 		_value:   defaults,
 	}
-	flags[name] = o
+	if f.flags == nil {
+		f.flags = make(map[string]_Flag)
+	}
+	f.flags[name] = o
 	return &o._value
 }
 
-func Bool(name string, defaults bool, usage string) *bool {
+func (f *FlagSet) Bool(name string, defaults bool, usage string) *bool {
 	b := &_BoolFlag{
 		_name:    "-" + name,
 		_default: defaults,
 		_usage:   usage,
 		_value:   defaults,
 	}
-	flags[name] = b
+	if f.flags == nil {
+		f.flags = make(map[string]_Flag)
+	}
+
+	f.flags[name] = b
 	return &b._value
 }
 
-var nonOptions = []string{}
-
-func Args() []string {
-	return nonOptions
+func (f *FlagSet) Args() []string {
+	return f.nonOptions
 }
 
-func usage() {
+func (f *FlagSet) usage() {
 	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
-	for _, value := range flags {
+	for _, value := range f.flags {
 		fmt.Fprintln(os.Stderr, value.usage())
 	}
 }
 
-func parse() error {
-	args := os.Args[1:]
+func (f *FlagSet) Parse(args []string) error {
+	if f.flags == nil {
+		f.flags = map[string]_Flag{}
+	}
 	for len(args) > 0 {
 		name := args[0]
 		args = args[1:]
 		if len(name) <= 0 || name[0] != '-' {
-			nonOptions = append(nonOptions, name)
+			f.nonOptions = append(f.nonOptions, name)
 			continue
 		}
-		o, ok := flags[name[1:]]
+		o, ok := f.flags[name[1:]]
 		if !ok {
 			if name == "-h" {
-				usage()
+				f.usage()
 				os.Exit(0)
 			}
 			return fmt.Errorf("flag provided but not defined: %s", name)
@@ -135,16 +145,30 @@ func parse() error {
 			return fmt.Errorf("%s: %w", name, err)
 		}
 	}
-	fmt.Fprintf(Debug, "Non Option args: %#v\n", nonOptions)
+	fmt.Fprintf(Debug, "Non Option args: %#v\n", f.nonOptions)
 	return nil
 }
 
+var globalFlag FlagSet
+
+func String(name, defaults, usage string) *string {
+	return globalFlag.String(name, defaults, usage)
+}
+
+func Bool(name string, defaults bool, usage string) *bool {
+	return globalFlag.Bool(name, defaults, usage)
+}
+
+func Args() []string {
+	return globalFlag.Args()
+}
+
 func Parse() {
-	err := parse()
+	err := globalFlag.Parse(os.Args[1:])
 	if err == nil {
 		return
 	}
 	fmt.Fprintln(os.Stderr, err.Error())
-	usage()
+	globalFlag.usage()
 	os.Exit(1)
 }
