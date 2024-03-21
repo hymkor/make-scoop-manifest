@@ -32,6 +32,16 @@ type Release struct {
 	Prerelease bool     `json:"prerelease"`
 }
 
+type ServerError struct {
+	Message string `json:"message"`
+	Url     string `json:"documentation_url"`
+	err     error
+}
+
+func (e ServerError) Error() string {
+	return fmt.Sprintf("ServerError: %s\n%s", e.Message, e.Url)
+}
+
 func GetReleases(name, repo string, log io.Writer) ([]*Release, error) {
 	releasesStr, err := queryReleases(name, repo, log)
 	if err != nil {
@@ -39,7 +49,12 @@ func GetReleases(name, repo string, log io.Writer) ([]*Release, error) {
 	}
 	var releases []*Release
 	if err := json.Unmarshal(releasesStr, &releases); err != nil {
-		return nil, fmt.Errorf("json.Unmarshal: %w", err)
+		var se ServerError
+		if json.Unmarshal(releasesStr, &se) == nil {
+			se.err = err
+			return nil, &se
+		}
+		return nil, fmt.Errorf("json.Unmarshal: %w\n%s", err, releasesStr)
 	}
 	for len(releases) > 0 && (releases[0].Draft || releases[0].Prerelease) {
 		releases = releases[1:]
