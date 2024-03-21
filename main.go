@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,6 +17,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/hymkor/make-scoop-manifest/internal/flag"
 	"github.com/hymkor/make-scoop-manifest/internal/gitdir"
 	"github.com/hymkor/make-scoop-manifest/internal/github"
 )
