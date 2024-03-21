@@ -36,4 +36,4 @@ d-manifest:
 release:
 	gh release create -d --notes "" -t $(VERSION) $(VERSION) $(wildcard $(NAME)-$(VERSION)-*.zip)
 
-.PHONY: all dist _dist manifest release clean-dist
+.PHONY: all dist _dist manifest release clean-dist test
