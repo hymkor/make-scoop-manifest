@@ -36,6 +36,7 @@ make-scoop-manifest {-options} [REPOSITORY] {localfiles...} > MANIFEST.JSON
     + For example:
         + `hymkor/make-scoop-manifest`
         + `https://github.com/hymkor/make-scoop-manifest`
+        + `git@github.com:hymkor/make-scoop-manifest.git`
     + If omitted, get them with `git remote show`
 + localfiles
     + If given, use the localfiles as assets instead of downloading
