@@ -65,10 +65,17 @@ func readTemplate() (*Manifest, error) {
 	return &manifest, nil
 }
 
-func keysToSlice(map1 map[string]struct{}) (slice []string) {
+// keysToSlice returns keys of map1 as the type []string or a string
+func keysToSlice(map1 map[string]struct{}) any {
 	if map1 == nil {
 		return nil
 	}
+	if len(map1) == 1 {
+		for binname := range map1 {
+			return binname
+		}
+	}
+	slice := make([]string, 0, len(map1))
 	for key := range map1 {
 		slice = append(slice, key)
 	}
