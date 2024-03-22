@@ -1,3 +1,7 @@
+v0.10.0
+=======
+Mar.23, 2024
+
 - New option: `-noautoupdate`: disable AutoUpdate
 - Seek the pattern for 64 bit prior to that for 32 bit now to fix the problem that `x86_64` was judged as the 32 bit architecture
 - The pattern `x64` is appended to the default value of the option `-64`
