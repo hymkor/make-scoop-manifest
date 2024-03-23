@@ -25,62 +25,65 @@ OR
 scoop install https://raw.githubusercontent.com/hymkor/make-scoop-manifest/master/make-scoop-manifest.json
 ```
 
-Usage-1
--------
+Usage
+-----
 
 ```
-cd YOUR-REPOSITORY
-make-scoop-manifest *.zip > YOUR-TOOL.json
+make-scoop-manifest {-options} [REPOSITORY] {localfiles...} > MANIFEST.JSON
 ```
 
-- Get USERNAME and REPOSITORY with `git remote show`.
++ REPOSITORY - "OWNERNAME/REPOSITORY" or GitHub-URL
+    + For example:
+        + `hymkor/make-scoop-manifest`
+        + `https://github.com/hymkor/make-scoop-manifest`
+        + `git@github.com:hymkor/make-scoop-manifest.git`
+    + If omitted, get them with `git remote show`
++ localfiles
+    + If given, use the localfiles as assets instead of downloading
+
+> [!Note]
+> The option `-g` and `-D` can be omitted now since v0.10.0
+
+Example-1
+---------
+
+- Get all information from GitHub Repository
+
+```
+$ make-scoop-manifest.exe hymkor/make-scoop-manifest  1>tmp.json
+
+make-scoop-manifest.exe v0.9.0-29-ge4752cc for windows/amd64 by go1.22.1
+Owner: hymkor
+Repos: make-scoop-manifest
+Get: https://api.github.com/repos/hymkor/make-scoop-manifest/releases
+Download: https://github.com/hymkor/make-scoop-manifest/releases/download/v0.9.0/make-scoop-manifest-v0.9.0-windows-386.zip
+Download: https://github.com/hymkor/make-scoop-manifest/releases/download/v0.9.0/make-scoop-manifest-v0.9.0-windows-amd64.zip
+Get: https://api.github.com/repos/hymkor/make-scoop-manifest
+```
+
+Example-2
+---------
+
+- When REPOSITORY is not specified, get information about repository with `git remote show`.
 - Make "hash" and "bin" of the manifest file with reading the local-zip files.
 
-Example:
 ```
-$ ../make-scoop-manifest/make-scoop-manifest.exe ./*.zip > zar.json
-Get: https://api.github.com/repos/hymkor/zar/releases
-Read local file: zar-v0.2.2-windows-386.zip
-Read local file: zar-v0.2.2-windows-amd64.zip
-Get: https://api.github.com/repos/hymkor/zar
-```
+$ cd %USERPROFILE%\src\make-scoop-manifest
+$ make-scoop-manifest.exe .\dist\make-scoop-manifest-*-windows-*.zip  1>tmp.json
 
-Usage-2
--------
-
-```
-make-scoop-manifest -g USERNAME/REPOSITORY *.zip > YOUR-TOOL.json
-```
-
-- Get USERNAME and REPOSITORY with the option parameter.
-- Make "hash" and "bin" of the manifest file with reading the local-zip files.
-
-```
-$ make-scoop-manifest.exe -g hymkor/zar ../zar/*.zip > zar.json
-Get: https://api.github.com/repos/hymkor/zar/releases
-Read local file: ..\zar\zar-v0.2.2-windows-386.zip
-Read local file: ..\zar\zar-v0.2.2-windows-amd64.zip
-Get: https://api.github.com/repos/hymkor/zar
-```
-
-Usage-3
--------
-
-```
-make-scoop-manifest -D -g USERNAME/REPOSITORY > YOUR-TOOL.json
-```
-
-- Get USERNAME and REPOSITORY with the option parameter.
-- Make "hash" and "bin" of the manifest file with downloading and reading the **uploaded zip files of the latest assets in the Releases**.  
-  (Caution: the download counters are incremented)
-
-Example:
-```
-$ make-scoop-manifest.exe -D -g hymkor/zar > zar.json
-Get: https://api.github.com/repos/hymkor/zar/releases
-Download: https://github.com/hymkor/zar/releases/download/v0.2.2/zar-v0.2.2-windows-386.zip
-Download: https://github.com/hymkor/zar/releases/download/v0.2.2/zar-v0.2.2-windows-amd64.zip
-Get: https://api.github.com/repos/hymkor/zar
+make-scoop-manifest.exe v0.9.0-30-gad96d30 for windows/amd64 by go1.22.1
+[git remote show]
+> origin
+[git remote show -n origin]
+> * remote origin
+>   Fetch URL: git@github.com:hymkor/make-scoop-manifest.git
+>   Push  URL: git@github.com:hymkor/make-scoop-manifest.git
+Owner: hymkor
+Repos: make-scoop-manifest
+Get: https://api.github.com/repos/hymkor/make-scoop-manifest/releases
+Read local file: dist\make-scoop-manifest-v0.9.0-windows-386.zip
+Read local file: dist\make-scoop-manifest-v0.9.0-windows-amd64.zip
+Get: https://api.github.com/repos/hymkor/make-scoop-manifest
 ```
 
 Sample commandline options:
@@ -89,31 +92,31 @@ Sample commandline options:
 ### benhoyt/goawk
 
 ```
-make-scoop-manifest -g benhoyt/goawk -D > bucket/goawk.json
+make-scoop-manifest benhoyt/goawk > bucket/goawk.json
 ```
 
 ### zat-kaoru-hayama/yShowver
 
 ```
-make-scoop-manifest.exe -anycpu -g zat-kaoru-hayama/yShowVer -D > bucket/yShowVer.json 
+make-scoop-manifest.exe -anycpu zat-kaoru-hayama/yShowVer > bucket/yShowVer.json 
 ```
 
 ### mattn/twty
 
 ```
-make-scoop-manifest -p -license "MIT License" -g mattn/twty -D > bucket/twty.json
+make-scoop-manifest -p -license "MIT License" mattn/twty > bucket/twty.json
 ```
 
 ### hymkor/Download-Count.ps1 (PowerShell package)
 
 ```
-make-scoop-manifest.exe -D -g hymkor/Download-Count.ps1 -binpattern "*.ps1" -anycpu > Download-Count.ps1.json
+make-scoop-manifest.exe -binpattern "*.ps1" -anycpu hymkor/Download-Count.ps1 > Download-Count.ps1.json
 ```
 
 ### mattn/bsky
 
 ```
-make-scoop-manifest.exe -license MIT -D -g mattn/bsky -64 "" > bsky.json
+make-scoop-manifest.exe -license MIT -64 "" mattn/bsky > bsky.json
 ```
 
 There are only 64bit packages in the releases page, therefore we should give `-64 ""` as an option to regard `bsky-windows-X.Y.Z.zip` as 64bit.
