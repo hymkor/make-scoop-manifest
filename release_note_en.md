@@ -1,3 +1,5 @@
+- Add the -all option to include pre-releases (#3)
+
 v0.10.0
 =======
 Mar.23, 2024
