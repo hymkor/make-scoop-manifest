@@ -35,6 +35,7 @@ var (
 	flagBinPattern     = flag.String("binpattern", "*.exe", "The pattern for executables(separated with comma)")
 	flagIgnoreWords    = flag.String("ignore", "linux,macos,freebsd,netbsd,darwin,plan9", "ignore the zipfile whose name contains these words")
 	flagNoAutoUpdate   = flag.Bool("noautoupdate", false, "disable autoupdate")
+	flagAllReleases    = flag.Bool("all", false, "Include pre-releases")
 )
 
 var (
@@ -328,7 +329,13 @@ func mains(args []string) error {
 	fmt.Fprintln(os.Stderr, "Owner:", owner)
 	fmt.Fprintln(os.Stderr, "Repos:", repos)
 
-	releases, err := github.GetReleases(owner, repos, os.Stderr)
+	var releases []*github.Release
+	var err error
+	if *flagAllReleases {
+		releases, err = github.GetAllReleases(owner, repos, os.Stderr)
+	} else {
+		releases, err = github.GetReleases(owner, repos, os.Stderr)
+	}
 	if err != nil {
 		return fmt.Errorf("getReleases: %w", err)
 	}

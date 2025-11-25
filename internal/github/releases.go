@@ -42,7 +42,7 @@ func (e ServerError) Error() string {
 	return fmt.Sprintf("ServerError: %s\n%s", e.Message, e.Url)
 }
 
-func GetReleases(name, repo string, log io.Writer) ([]*Release, error) {
+func getAllReleases(name, repo string, log io.Writer) ([]*Release, error) {
 	releasesStr, err := queryReleases(name, repo, log)
 	if err != nil {
 		return nil, fmt.Errorf("getReleases: %w", err)
@@ -56,7 +56,26 @@ func GetReleases(name, repo string, log io.Writer) ([]*Release, error) {
 		}
 		return nil, fmt.Errorf("json.Unmarshal: %w\n%s", err, releasesStr)
 	}
+	return releases, nil
+}
+
+func GetReleases(name, repo string, log io.Writer) ([]*Release, error) {
+	releases, err := getAllReleases(name, repo, log)
+	if err != nil {
+		return nil, err
+	}
 	for len(releases) > 0 && (releases[0].Draft || releases[0].Prerelease) {
+		releases = releases[1:]
+	}
+	return releases, nil
+}
+
+func GetAllReleases(name, repo string, log io.Writer) ([]*Release, error) {
+	releases, err := getAllReleases(name, repo, log)
+	if err != nil {
+		return nil, err
+	}
+	for len(releases) > 0 && releases[0].Draft {
 		releases = releases[1:]
 	}
 	return releases, nil
