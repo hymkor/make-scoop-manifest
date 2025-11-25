@@ -1,15 +1,17 @@
 make-scoop-manifest.exe
 =======================
 
-This is a tool to make the manifest file of the [scoop-installer](https://scoop.sh) for your application on GitHub Releases.
+This tool generates a Scoop manifest file for your application using information from GitHub Releases.
 
-- Your application must be packaged as a zip-file and attached as an asset in GitHub Releases
-- The names of zip-files names must contain the word: `32bit`, `64bit`, `386`, `486`, `586`, `686`, `amd64`, `x86_64`, `x64` or `arm64`
-    - If the executable is for AnyCPU, use the option `-anycpu`.
-- If the names of zip-files contain `linux` or `macos`, they are ignored.
-- Do not check the target is updated or not.
+- Your application must be packaged as a zip file and attached as an asset on GitHub Releases.
+- The names of the zip files must contain one of the following keywords:
+  `32bit`, `64bit`, `386`, `486`, `586`, `686`, `amd64`, `x86_64`, `x64`, or `arm64`
 
-The output sample is [here](https://github.com/hymkor/make-scoop-manifest/blob/master/make-scoop-manifest.json).
+  - If the executable is AnyCPU, use the `-anycpu` option.
+- If the filenames contain `linux` or `macos`, those assets are ignored.
+- The tool does not check whether an existing manifest is up to date.
+
+A sample output is available [here](https://github.com/hymkor/make-scoop-manifest/blob/master/make-scoop-manifest.json).
 
 Install
 -------
@@ -32,22 +34,23 @@ Usage
 make-scoop-manifest {-options} [REPOSITORY] {localfiles...} > MANIFEST.JSON
 ```
 
-+ REPOSITORY - "OWNERNAME/REPOSITORY" or GitHub-URL
-    + For example:
-        + `hymkor/make-scoop-manifest`
-        + `https://github.com/hymkor/make-scoop-manifest`
-        + `git@github.com:hymkor/make-scoop-manifest.git`
-    + If omitted, get them with `git remote show`
-+ localfiles
-    + If given, use the localfiles as assets instead of downloading
++ **REPOSITORY** — `"OWNER/REPO"` or a GitHub URL
+  Examples:
+
+  + `hymkor/make-scoop-manifest`
+  + `https://github.com/hymkor/make-scoop-manifest`
+  + `git@github.com:hymkor/make-scoop-manifest.git`
+    If omitted, the repository information is determined via `git remote show`.
++ **localfiles**
+  If specified, the given local zip files are used as assets instead of downloading from GitHub.
 
 > [!Note]
-> The option `-g` and `-D` can be omitted now since v0.10.0
+> As of v0.10.0, the `-g` and `-D` options are optional.
 
-Example-1
+Example 1
 ---------
 
-- Get all information from GitHub Repository
+Retrieve all information from a GitHub repository:
 
 ```
 $ make-scoop-manifest.exe hymkor/make-scoop-manifest  1>tmp.json
@@ -61,11 +64,11 @@ Download: https://github.com/hymkor/make-scoop-manifest/releases/download/v0.9.0
 Get: https://api.github.com/repos/hymkor/make-scoop-manifest
 ```
 
-Example-2
+Example 2
 ---------
 
-- When REPOSITORY is not specified, get information about repository with `git remote show`.
-- Make "hash" and "bin" of the manifest file with reading the local-zip files.
+When the repository is not specified, information is detected via `git remote show`.
+Local zip files are used to generate `"hash"` and `"bin"`.
 
 ```
 $ cd %USERPROFILE%\src\make-scoop-manifest
@@ -86,7 +89,7 @@ Read local file: dist\make-scoop-manifest-v0.9.0-windows-amd64.zip
 Get: https://api.github.com/repos/hymkor/make-scoop-manifest
 ```
 
-Sample commandline options:
+Sample command-line options
 ---------------------------
 
 ### benhoyt/goawk
@@ -119,4 +122,4 @@ make-scoop-manifest.exe -binpattern "*.ps1" -anycpu hymkor/Download-Count.ps1 > 
 make-scoop-manifest.exe -license MIT -64 "" mattn/bsky > bsky.json
 ```
 
-There are only 64bit packages in the releases page, therefore we should give `-64 ""` as an option to regard `bsky-windows-X.Y.Z.zip` as 64bit.
+Only 64-bit packages are available for this repository, so `-64 ""` is required to treat `bsky-windows-X.Y.Z.zip` as a 64-bit package.
