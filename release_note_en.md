@@ -1,8 +1,11 @@
+Release notes (English)
+=======================
+
 - Add the -all option to include pre-releases (#3)
 
 v0.10.0
-=======
-Mar.23, 2024
+-------
+Mar 23, 2024
 
 - New option: `-noautoupdate`: disable AutoUpdate
 - Seek the pattern for 64 bit prior to that for 32 bit now to fix the problem that `x86_64` was judged as the 32 bit architecture
@@ -18,13 +21,13 @@ Mar.23, 2024
 - Report the message of server-errors to user
 
 v0.9.0
-======
+------
 Jan 27, 2024
 
 - Support the repository cloned by https when `-g` option is not used.
 
 v0.8.0
-======
+------
 Jan 27, 2024
 
 - Add `-binpattern PATTERN` (for example: `-binpattern "*.exe,*.ps1,*.cmd"`)
@@ -32,7 +35,7 @@ Jan 27, 2024
 - Fix: the problem that a panic occurs when assets given in the parameter is not found
 
 v0.7.0
-======
+------
 Oct 26, 2023
 
 - Append keywords to judge architectures for Rust
@@ -40,7 +43,7 @@ Oct 26, 2023
     - for 64bit `x86_64`
 
 v0.6.0
-======
+------
 Jan 25, 2023
 
 - Print usage when no zip-files are given
@@ -53,7 +56,7 @@ Jan 25, 2023
     - `-description "XXX"` is same as `-inline "{ \"description\":\"XXX\" }"`
 
 v0.5.0
-======
+------
 Jan 17, 2023
 
 - Add the options:
@@ -61,7 +64,7 @@ Jan 17, 2023
     - -64 "string" : When these strings are found, set architecture 64bit (default "amd64,64bit,win64")
 
 v0.4.0
-======
+------
 Jan 17, 2023
 
 - Add -p option:
@@ -69,7 +72,7 @@ Jan 17, 2023
     - Set the basename of `*.exe` into `bin`
 
 v0.3.0
-======
+------
 Jan 12, 2023
 
 - Add -anycpu option:
@@ -77,31 +80,31 @@ Jan 12, 2023
     - Do not check whether the zip file's name has ether 386 or amd64 keyword.
 
 v0.2.2
-======
+------
 Jan 10, 2023
 
 - When either "license" or "description" is empty, print warning
 
 v0.2.1
-======
+------
 Jan 9, 2023
 
 - (#2) Set "github" only into the manifest item "checkver" ( Thx @spiegel-im-spiegel )
 
 v0.2.0
-======
+------
 Jan 9, 2023
 
 - (#1) 32bit, 64bit and arm64 are available as the architecture keyword. (Thx @spiegel-im-spiegel )
 
 v0.1.1
-======
+------
 Jan 9, 2023
 
 - Fix: error when repository-name had -
 
 v0.1.0
-======
+------
 Jan 9, 2023
 
 - The first release.
