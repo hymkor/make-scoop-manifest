@@ -1,16 +1,16 @@
 {
-    "version": "0.10.0",
+    "version": "0.11.0",
     "description": "Make the manifest file of the scoop-installer",
     "homepage": "https://github.com/hymkor/make-scoop-manifest",
     "license": "MIT License",
     "architecture": {
         "32bit": {
-            "url": "https://github.com/hymkor/make-scoop-manifest/releases/download/v0.10.0/make-scoop-manifest-v0.10.0-windows-386.zip",
-            "hash": "2b693058e26d99bf470f53481a79bde1fdc9d8c2be79973ad2c40448311cb545"
+            "url": "https://github.com/hymkor/make-scoop-manifest/releases/download/v0.11.0/make-scoop-manifest-v0.11.0-windows-386.zip",
+            "hash": "6a0ef0ef7180bfa70535222d924d3ca873849110efb6063af0d57aa0c8e989c2"
         },
         "64bit": {
-            "url": "https://github.com/hymkor/make-scoop-manifest/releases/download/v0.10.0/make-scoop-manifest-v0.10.0-windows-amd64.zip",
-            "hash": "4826c9241ad6c8b58bf60fa350adcbc5ddfc4441c501810258688cce74e37476"
+            "url": "https://github.com/hymkor/make-scoop-manifest/releases/download/v0.11.0/make-scoop-manifest-v0.11.0-windows-amd64.zip",
+            "hash": "342dfae135aac4c3dcf6cb14f2c50700a363c40611a2d64b5b74545bc09444f2"
         }
     },
     "bin": "make-scoop-manifest.exe",
