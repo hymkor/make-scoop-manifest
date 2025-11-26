@@ -1,6 +1,10 @@
 Release notes (English)
 =======================
 
+v0.11.0
+-------
+Nov 26, 2025
+
 - Add the -all option to include pre-releases (#3)
 
 v0.10.0
