@@ -1,6 +1,10 @@
 Release notes (English)
 =======================
 
+v0.11.1
+-------
+Feb 10, 2026
+
 - Support `go1.20.14.exe run github.com/hymkor/make-scoop-manifest@latest` (#4)
   - Stop using "slices" package; support building with Go 1.20.14
   - Makefile: Use go1.20.14(.exe) if available
