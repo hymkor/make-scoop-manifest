@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"slices"
 	"sort"
 	"strings"
 
@@ -285,10 +284,17 @@ var (
 	rxRepositoryH = regexp.MustCompile(`^(?:https://github.com/)?([^/]+)/([^/]+)`)
 )
 
+func slicesInsert(s []string, at int, element string) []string {
+	s = append(s, "")
+	copy(s[at+1:], s[at:])
+	s[at] = element
+	return s
+}
+
 func mains(args []string) error {
 	// for compatiblity
 	if *flagUserAndRepo != "" {
-		args = slices.Insert(args, 0, *flagUserAndRepo)
+		args = slicesInsert(args, 0, *flagUserAndRepo)
 	}
 	localfiles := map[string]string{}
 	var owner, repos string
