@@ -7,17 +7,22 @@ else
     NUL=/dev/null
 endif
 
+ifndef GO
+    SUPPORTGO=go1.20.14
+    GO:=$(shell $(WHICH) $(SUPPORTGO) 2>$(NUL) || echo $(GO))
+endif
+
 NAME:=$(notdir $(CURDIR))
 VERSION:=$(shell git describe --tags 2>$(NUL) || echo v0.0.0)
 GOOPT:=-ldflags "-s -w -X main.version=$(VERSION)"
-EXE:=$(shell go env GOEXE)
+EXE:=$(shell $(GO) env GOEXE)
 
 all:
-	go fmt ./...
-	$(SET) "CGO_ENABLED=0" && go build $(GOOPT)
+	$(GO) fmt ./...
+	$(SET) "CGO_ENABLED=0" && $(GO) build $(GOOPT)
 
 _dist:
-	$(MAKE) all
+	$(SET) "CGO_ENABLED=0" && $(GO) build $(GOOPT)
 	zip $(NAME)-$(VERSION)-$(GOOS)-$(GOARCH).zip $(NAME)$(EXE)
 
 dist:
@@ -34,6 +39,6 @@ d-manifest:
 	make-scoop-manifest -D > $(NAME).json
 
 release:
-	gh release create -d --notes "" -t $(VERSION) $(VERSION) $(wildcard $(NAME)-$(VERSION)-*.zip)
+	$(GO) run github.com/hymkor/latest-notes@master | gh release create -d --notes-file - -t $(VERSION) $(VERSION) $(wildcard $(NAME)-$(VERSION)-*.zip)
 
 .PHONY: all dist _dist manifest release clean-dist test
