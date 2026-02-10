@@ -1,6 +1,10 @@
 Release notes (Japanese)
 ========================
 
+- `go1.20.14.exe run github.com/hymkor/make-scoop-manifest@latest` 方式の実行をサポート (#4)
+  - "slices" パッケージの使用をやめ、Go 1.20.14 でもビルドできるようにした
+  - Makefile: go1.20.14(.exe) があれば go1.20.14(.exe) を使用するようにした
+
 v0.11.0
 -------
 Nov 26, 2025
